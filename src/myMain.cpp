@@ -47,7 +47,7 @@ int origin = 0;
 int outline_thickness = 1;
 int white_ratio_proba = 5;
 
-int main()
+int myMain()
 {
 	
 	/* sf::RenderWindow window(sf::VideoMode(800, 600), "SFML works!");

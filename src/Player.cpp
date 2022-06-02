@@ -65,7 +65,7 @@ void Player::initSprite()
 }
 void Player::initVariables()
 {
-	this->movementSpeed = 15.f;
+	this->movementSpeed =25.f;
 	this->attackCooldownMax = 10.f;
 	this->attackCooldown = this->attackCooldownMax;
 }

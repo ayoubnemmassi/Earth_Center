@@ -6,11 +6,14 @@ Game::Game()
 	this->initWindow();
 	//this->initTextures();
 	this->initPlayer();
+	
 	this->initFonts();
 	this->initText();
 	this->spawnFossiles();
 	this->initShader();
 	this->initGameWorld();
+	
+	//player->setPosition(100,gameWorld->getgridLenth() );
 }
 Game::~Game()
 {
@@ -33,12 +36,22 @@ void Game::run()
 		this->render();
 	}
 }
+//sf::Clock globalClock;
 void Game::render()
 {
+	std::string s = "The name Tyrannosaurus means king of the tyrant lizards";
+	std::cout << "size of string" << s.size() << std::endl;
 	this->window->clear(sf::Color(135,206,235));
 	this->gameWorld->render(*this->window, &shader, player->getPos());
 	this->renderFossiles();
 	this->player->render(*this->window);
+	/*mapdemo.load("C:/Users/MSI/Downloads/earthcenter/Textures/demo.tmx");
+	MapLayer layerZero(mapdemo, 0);
+	MapLayer layerOne(mapdemo, 1);
+	sf::Time duration = globalClock.getElapsedTime();
+	layerZero.update(duration);
+	window->draw(layerZero);
+	window->draw(layerOne);*/
 	/*sf::Sprite test;
 	sf::Texture test2;
 	test2.loadFromFile()*/
@@ -74,7 +87,8 @@ void Game::update()
 	{
 		this->endGame = true;
 	}
-
+	std::cout << "playerpos" << player->getPos().y << std::endl;
+	std::cout << "endpos" << gameWorld->getgridLenth() << std::endl;
 
 }
 
@@ -83,7 +97,7 @@ void Game::update()
 //INIT FUNCTIONS 
 void Game::initWindow()
 {
-	this->view.setCenter(0.f, 0.f);
+	//this->view.setCenter(0.f, 0.f);
 	this->view.setSize(VIEW_HEIGHT, VIEW_HEIGHT);
 	this->videoMode.height = 600;
 	this->videoMode.width = 600;
@@ -170,7 +184,48 @@ void Game::updateMousePosition()
 }
 void Game::updateView()
 {
-	view.setCenter(player->getPos());
+	bool middle = true;
+	std::cout << view.getCenter().x - view.getSize().x /2  << std::endl;
+	//left
+	if (player->getPos().x - view.getSize().x / 2 <= 0) {
+		view.setCenter(view.getSize().x / 2, player->getPos().y);
+		middle = false;
+	}
+	//right
+	else if (player->getPos().x + view.getSize().x / 2 >= gameWorld->getgridWidth())
+	{
+		view.setCenter(gameWorld->getgridWidth() -view.getSize().x / 2, player->getPos().y);
+		middle = false;
+	}
+	//bottom
+	if (player->getPos().y + view.getSize().y / 2 >= gameWorld->getgridLenth() && player->getPos().x - view.getSize().x / 2 <= 0)
+	{
+		//view.setCenter(player->getPos());
+		view.setCenter(view.getSize().x / 2, gameWorld->getgridLenth() - view.getSize().y / 2);
+		middle = false;
+	}
+	else if (player->getPos().y + view.getSize().y / 2 >= gameWorld->getgridLenth() && player->getPos().x + view.getSize().x / 2 >= gameWorld->getgridWidth())
+		
+	{
+		//view.setCenter(player->getPos());
+		view.setCenter(gameWorld->getgridWidth() - view.getSize().x / 2, gameWorld->getgridLenth() - view.getSize().y / 2);
+		middle = false;
+	}
+	else
+	  if(player->getPos().y+view.getSize().y/2>=gameWorld->getgridLenth())
+	{
+		//view.setCenter(player->getPos());
+		 view.setCenter(player->getPos().x, gameWorld->getgridLenth()-view.getSize().y / 2);
+		 middle = false;
+	}
+
+	 
+	if(middle)
+	{
+		//view.setCenter(player->getPos().x, view.getSize().y / 2);
+		 view.setCenter(player->getPos());
+	}
+	std::cout << "player->getPos().y+view.getSize().y/2: " << player->getPos().y + view.getSize().y / 2 << std::endl;
 }
 
 void Game::updateCollision()
@@ -180,34 +235,34 @@ void Game::updateCollision()
 		std::cout << "left: " << player->getBounds().left << "width" << player->getBounds().width;
 		player->setPosition(0.f, player->getBounds().top);
 	}
-	else if (player->getBounds().left + player->getBounds().width >= gameWorld->getgridWidth() * 288)
+	else if (player->getBounds().left + player->getBounds().width >= gameWorld->getgridWidth() )
 	{
 		std::cout << "left: " << player->getBounds().left << "width" << player->getBounds().width;
-		player->setPosition(gameWorld->getgridWidth() * 288 - player->getBounds().width, player->getBounds().top);
+		player->setPosition(gameWorld->getgridWidth()  - player->getBounds().width, player->getBounds().top);
 	}
 
 	if (player->getBounds().top < 0.f)
 	{
 		player->setPosition(player->getBounds().left, 0.f);
 	}
-	else if (player->getBounds().top < 0.f + player->getBounds().height >= gameWorld->getgridLenth() * 288)
+	else if (player->getBounds().top + player->getBounds().height >= gameWorld->getgridLenth() )
 	{
-		player->setPosition(player->getBounds().left, gameWorld->getgridLenth() * 288 - player->getBounds().height);
+		player->setPosition(player->getBounds().left, gameWorld->getgridLenth()  - player->getBounds().height);
 	}
 
 }
 
 
-
+int i = 0;
 //RENDER FUNCTIONS
 void Game::renderFossilsPopup()
 {
-	int i = 0;
+	
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !popup)
 	{
 
 		bool deleted = false;
-		for (i = 0; i < this->fossiles.size() && deleted == false; i++)
+		for (i = 0; i < this->fossiles.size()&&!popup ; i++)
 		{
 			if (this->fossiles[i]->getSprite().getGlobalBounds().contains(this->mousPositionView))
 			{
@@ -224,7 +279,7 @@ void Game::renderFossilsPopup()
 				std::cout << "points: " << this->points << std::endl;
 			}
 		}
-
+		i--;
 	}
 	else if (popup)
 	{
@@ -233,8 +288,14 @@ void Game::renderFossilsPopup()
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 	{
+		/*if (popup) {
+			delete fossiles[i];
+			fossiles.erase(fossiles.begin() + i);
+		}*/
+		
 		popup = false;
 		PopUpChanged = true;
+
 	}
 }
 void Game::renderFossiles()

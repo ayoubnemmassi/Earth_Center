@@ -11,6 +11,9 @@
 #include "GameWorld.h"
 #include"Fossil.h"
 #include"Enemy.h"
+//#include <tmxlite/Map.hpp>
+//#include"SFMLOrthogonalLayer.h"
+
 class Game
 {
 public:
@@ -42,7 +45,7 @@ private:
 	  //variables
 	  sf::RenderWindow* window;
 	  sf::VideoMode videoMode;
-	  
+	//  tmx::Map mapdemo;
 	  //functions
 	  void initWindow();
 

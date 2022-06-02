@@ -31,7 +31,7 @@ void Fossil::update()
 
 void Fossil::updatePopup()
 {
-	randomnumber = rand() % 2;
+	randomnumber = rand() % 3;
 }
 
 void Fossil::render(sf::RenderTarget& target)
@@ -53,9 +53,10 @@ void Fossil::renderPopUp(sf::RenderTarget& target)
 
 void Fossil::initTrexinfo()
 {
-	trextinfo.push_back("The name 'Tyrannosaurus' means 'king of the tyrant lizards");
-	trextinfo.push_back("The T-Rex is believed to have had the strongest bite of any land animal roughly 12,814 pounds of force");
-	trextinfo.push_back("The T-Rex was given its names in 1905 by the then president of the American Museum of Natural History Henry Fairfield");
+	
+	trextinfo.push_back("The name Tyrannosaurus means king of the tyrant lizards");
+	trextinfo.push_back(" believed to have had the strongest bite of any land animal roughly 12,814 pounds of force");
+	trextinfo.push_back(" was given its names in 1905 by  Henry Fairfield");
 
 }
 
@@ -84,7 +85,8 @@ void Fossil::initinfotext(std::string info)
 	}
 	infotext.setFont(infoFont);
 	infotext.setFillColor(sf::Color::Black);
-	infotext.setCharacterSize(35);
+	if(info.size()>60){ infotext.setCharacterSize(30); }
+	else{ infotext.setCharacterSize(35); }
 	infotext.setString(info);
 	infotext.setOrigin(infotext.getGlobalBounds().width / 2, infotext.getGlobalBounds().height / 2);
 	infotext.setPosition(popup.getPosition().x+popup.getGlobalBounds().width/2, popup.getPosition().y + popup.getGlobalBounds().height / 2);

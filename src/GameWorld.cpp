@@ -3,8 +3,8 @@ GameWorld::GameWorld()
 {
 	maxTimer = 200;
 	firstLayer = 1, secondLayer = 8, thirdLayer =8, fourthLayer = 8, fifthLayer = 8;
-	gridWidth = firstLayer + secondLayer + thirdLayer + fourthLayer + fifthLayer;
-	gridLenth = 50;
+	gridLenth = firstLayer + secondLayer + thirdLayer + fourthLayer + fifthLayer;
+	gridWidth = 30;
 	setUpInitialState();
 	initTextTimer("PixellettersFull.ttf");
 	initskysprite();
@@ -43,9 +43,9 @@ void GameWorld::initskysprite()
 void GameWorld::render(sf::RenderTarget& target, sf::Shader* shader, sf::Vector2f playerPos)
 {
 	
-	for (int i = 0; i < gridWidth;i++)
+	for (int i = 0; i < gridLenth;i++)
 	{
-		for (int j = 0;j < gridLenth;j++)
+		for (int j = 0;j < gridWidth;j++)
 		{
 			if (shader) {
 				if(playerPos.y< 288 * 3)
@@ -95,13 +95,13 @@ void GameWorld::updateTimerText(const sf::Vector2f &player_pos)
 void GameWorld::setUpInitialState()
 {
 	exitPos = sf::Vector2i(1, 0);
-	playerPos = sf::Vector2i(gridLenth-1,gridLenth-1);
+	playerPos = sf::Vector2i(gridWidth-1,gridWidth-1);
 
 //RESIZE TILES FOR OPTIMIZATION
-	this->tiles.resize(gridWidth);
-	for (int x = 0; x < gridWidth; x++)
+	this->tiles.resize(gridLenth);
+	for (int x = 0; x < gridLenth; x++)
 	{
-		this->tiles[x].resize(gridLenth);
+		this->tiles[x].resize(gridWidth);
 		
 	}
 	
@@ -124,7 +124,7 @@ void GameWorld::setUpTiles()
 	std::string url = "C:/Users/MSI/Downloads/earthcenter/Textures/";
 	std::string tile = "";
 
-	for (int i = 0; i < gridWidth;i++)
+	for (int i = 0; i < gridLenth;i++)
 	{
 		if(i<firstLayer){ tile = "grass1.png"; }
 		else if(i<=secondLayer&&i>=firstLayer){ tile = "dirt.png"; }
@@ -133,7 +133,7 @@ void GameWorld::setUpTiles()
 		else if(i<=fifthLayer+fourthLayer+thirdLayer+secondLayer ){ tile = "solid.png"; }
 		 
 		tilew = 0;
-		for (int j = 0;j < gridLenth ;j++)
+		for (int j = 0;j < gridWidth ;j++)
 		{
 			
 			tiles[i][j] = new Tile(url+tile, tilew, tileh, false, false);
@@ -148,12 +148,12 @@ void GameWorld::setUpTiles()
 //GETERS
 const int GameWorld::getgridLenth() const
 {
-	return gridLenth;
+	return gridLenth*tiles[1][1]->sprite.getGlobalBounds().height;
 }
 
 const int GameWorld::getgridWidth() const
 {
-	return gridWidth;
+	return gridWidth* tiles[1][1]->sprite.getGlobalBounds().width;
 }
 
 const float GameWorld::getMaxTimer() const
