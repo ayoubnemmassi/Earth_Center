@@ -16,36 +16,14 @@ int random(int const nbMin,int const nbMax)
 }
 float randomreal(float const nbMin, float const nbMax)
 {
-	
+
 	static std::default_random_engine engine;
 	std::uniform_real_distribution<> distribution(nbMin, nbMax);
 
 	return distribution(engine);
-}
-void drawrectangle(int rectnumber, RectangleShape rect, RenderWindow &window)
-{
-	
 
-		for (int i = 0;i < rectnumber;i++)
-		{
-			rect.setSize(Vector2f(random(50, 300), random(50, 300)));
-			rect.setFillColor(Color(random(0, 255), random(0, 255), random(0, 255)));
-			rect.setPosition(Vector2f(random(0, 800), random(0, 600)));
-			rect.setOutlineThickness(1);
-			rect.setOutlineColor(Color::Black);
-			window.draw(rect);
-				
-		}
-	
-	
-}
 
-int width  = 800 ,height=600;
-int subdivisions = 600;
-int min_diff = 15;
-int origin = 0;
-int outline_thickness = 1;
-int white_ratio_proba = 5;
+}
 
 int myMain()
 {

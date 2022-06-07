@@ -1,5 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+#include <SFML/System/Time.hpp>
 #include <random>
 #include <vector>
 #include <ctime>
@@ -11,8 +13,12 @@
 #include "GameWorld.h"
 #include"Fossil.h"
 #include"Enemy.h"
-//#include <tmxlite/Map.hpp>
-//#include"SFMLOrthogonalLayer.h"
+#include"Obstacle.h"
+#include"Ore.h"
+#include"AudioManager.h"
+#include"Finish.h"
+#include <tmxlite/Map.hpp>
+#include"SFMLOrthogonalLayer.h"
 
 class Game
 {
@@ -37,7 +43,10 @@ public:
 	const bool getWindowIsOpen()const;
 	const bool getEndGame()const;
 	const bool getPopUpChanged()const;
-
+	Player &getPLayer() const;
+	Finish &getFinish() const;
+   std::vector<std::unique_ptr<Fossil>> const &getFossiles()const;
+   std::vector<std::unique_ptr<Ore>> const& getOres() const;
 private:
 	/*
 	* window
@@ -45,7 +54,8 @@ private:
 	  //variables
 	  sf::RenderWindow* window;
 	  sf::VideoMode videoMode;
-	//  tmx::Map mapdemo;
+	  tmx::Map mapdemo;
+	  sf::Clock globalClock;
 	  //functions
 	  void initWindow();
 
@@ -82,13 +92,14 @@ private:
 	* fossil
 	*/
 	  //variables
-	  std::vector<Fossil*>fossiles;
+	  std::vector< std::unique_ptr<Fossil>>fossiles;
 	  
 	  //functions
 	  void renderFossiles();
-	  void spawnFossiles();
+	  void initFossiles();
 	  void updateFossils();
 	  void renderFossilsPopup();
+
 
 	/*
 	* game mechanics
@@ -112,11 +123,13 @@ private:
 	  void updateCollision();
 	  int random(int const nbMin, int const nbMax);
 
+	  sf::Vector2f getMousPositionView()const;
+
 	/*
 	* player
 	*/
 	  //variables
-	  Player* player;
+	 std::unique_ptr<Player>  player;
 
 	  //functions
 	  void initPlayer();
@@ -158,20 +171,48 @@ private:
 	
 	
 	
-	
+	/*
+	* obstacles
+	*/
+	  std::vector<std::unique_ptr< Obstacle>>firstLayerObstacles;
+	  std::vector<std::unique_ptr< Obstacle>>secondLayerObstacles;
+	  std::vector<std::unique_ptr< Obstacle>>thirdLayerObstacles;
+	  
+	  int numberOfObstacles;
 
+	  void initObstacles(int numberOfObstacles);
+	  void updateObstacles();
+	  void renderObstacles();
+
+	/*
+	* ore
+	*/
+	  Ore* ore;
+	  std::vector<std::unique_ptr< Ore>>ores;
+
+	  int maxores;
+
+	  void initOres(int maxores);
+	  void updateOres();
+	  void renderOres();
 	
+	  sf::SoundBuffer soundBuffer;
+	  sf::SoundBuffer mouvingSoundBuffer;
+	  sf::Sound sound;
+	  sf::Sound mouvingSound;
+	  sf::Music music;
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	  std::unique_ptr< AudioManager> audiomanager;
+	  void initAudiomanager();
+	  void initGamemusic();
+	  /*
+	  * finish
+	  */
+	  //variables
+	  std::unique_ptr<Finish>finish;
+	  bool isfinish;
+	  //functions
+	  void initFinish();
 
 };
 

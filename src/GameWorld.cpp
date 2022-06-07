@@ -1,13 +1,15 @@
 #include "GameWorld.h"
-GameWorld::GameWorld()
+GameWorld::GameWorld(const Player &player)
 {
 	maxTimer = 200;
 	firstLayer = 1, secondLayer = 8, thirdLayer =8, fourthLayer = 8, fifthLayer = 8;
 	gridLenth = firstLayer + secondLayer + thirdLayer + fourthLayer + fifthLayer;
 	gridWidth = 30;
+	layertiles = 8;
 	setUpInitialState();
 	initTextTimer("PixellettersFull.ttf");
 	initskysprite();
+	initGUI(player);
 }
 
 GameWorld::~GameWorld()
@@ -36,7 +38,15 @@ void GameWorld::initskysprite()
 	sky.setTexture(skyTexture);
 	sky.setPosition(0, -sky.getGlobalBounds().height);
 }
+void GameWorld::initGUI(const Player& player)
+{
+	this->playerHpBar.setSize(sf::Vector2f(200.f, 30.f));
+	this->playerHpBar.setFillColor(sf::Color::Red);
+	this->playerHpBackground = this->playerHpBar;
+	this->playerHpBackground.setFillColor(sf::Color(25, 25, 25, 200));
 
+
+}
 
 
 //RENDER FUNCTOINS
@@ -66,6 +76,7 @@ void GameWorld::render(sf::RenderTarget& target, sf::Shader* shader, sf::Vector2
 				target.draw(tiles[i][j]->sprite);
 		}
 	}
+	renderGUI(target);
 	//target.draw(sky);
 }
 
@@ -75,18 +86,37 @@ void GameWorld::renderTimerText(sf::RenderTarget& target)
 }
 
 
+void GameWorld::renderGUI(sf::RenderTarget& target)
+{
+	this->playerHpBackground.setPosition(target.getView().getCenter().x - 300.f, target.getView().getCenter().y - 310.f);
+	this->playerHpBar.setPosition(target.getView().getCenter().x - 300.f, target.getView().getCenter().y - 310.f);
+	target.draw(this->playerHpBackground);
+	target.draw(this->playerHpBar);
+}
+
+
 //UPDATE FUNCTIONS
 void GameWorld::updateTime()
 {
 	timer= clock.getElapsedTime().asSeconds();
+	
 	system("cls");
-	std::cout << this->timer << std::endl;
+	
+}
+void GameWorld::updateGUI( Player  &player)
+{
+
+	/*this->playerHpBackground.setPosition(player.getPos().x - 300.f, player.getPos().y - 310.f);
+	this->playerHpBar.setPosition(player.getPos().x - 300.f, player.getPos().y - 310.f);	*/
+	float hpPercent = static_cast<float>(player.getHp()) / static_cast<float>(player.getHpMax());
+	this->playerHpBar.setSize(sf::Vector2f(playerHpBar.getSize().x * hpPercent, playerHpBar.getSize().y));
 }
 
-void GameWorld::updateTimerText(const sf::Vector2f &player_pos)
+void GameWorld::updateTimerText(const sf::Vector2f &player_pos)	
 {
 	
-	timerText.setString(std::to_string(timer));
+	timerText.setString(std::to_string((int)timer)+"s");
+	timerText.setPosition(player_pos.x - 290.f, player_pos.y +230.f);
 	
 }
 
@@ -149,6 +179,11 @@ void GameWorld::setUpTiles()
 const int GameWorld::getgridLenth() const
 {
 	return gridLenth*tiles[1][1]->sprite.getGlobalBounds().height;
+}
+
+const int GameWorld::getLayerLenth() const
+{
+	return layertiles * tiles[1][1]->sprite.getGlobalBounds().height;
 }
 
 const int GameWorld::getgridWidth() const

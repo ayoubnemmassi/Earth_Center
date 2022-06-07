@@ -4,15 +4,13 @@
 #include <vector>
 #include <iostream>
 #include <map>
+#include"AudioManager.h"
 
 class Fossil
 {
 public:
-	Fossil();
-	Fossil(std::string,sf::Vector2f);
-	~Fossil();
 
-
+	Fossil(std::string const&,sf::Vector2f);
 
 	void initPopUpTexture();
 	void initPopUpSprite(const sf::Vector2f& playerPos);
@@ -24,8 +22,12 @@ public:
 	void initParainfo();
 	void initTricinfo();
 	void initinfotext(std::string info);
-
+	void gotCollected();
+	std::string getQuestionFromFossils()const;
+	std::string getName() const;
+	
 	const sf::Sprite getSprite() const;
+	 int getInfoNumber() const;
 private:
 
 	sf::Text infotext;
@@ -46,5 +48,9 @@ private:
 	void initTexture(std::string name);
 	void initSprite(std::string name);
 	void initVariables();
+
+	std::unique_ptr< AudioManager> audiomanager;
+	void initAudiomanager();
+	void initGamemusic();
 };
 

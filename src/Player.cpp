@@ -1,5 +1,5 @@
 #include "Player.h"
-Player::Player()
+Player::Player(const std::string& name, const std::string& spriteurl):name{name},spriteURL{ spriteurl }
 {
 	
 	this->initTexture();
@@ -8,9 +8,7 @@ Player::Player()
 	setPosition(600, 100);
 }
 
-Player::~Player()
-{
-}
+
 
 const sf::FloatRect Player::getBounds() const
 {
@@ -20,6 +18,16 @@ const sf::FloatRect Player::getBounds() const
 void Player::update()
 {
 	this->updateAttack();
+	if (collectedores == 3)
+	{
+		texture.loadFromFile("C:/Users/MSI/Downloads/earthcenter/Textures/bluetank.png");
+		sprite.setTexture(texture);
+	}
+	else if(collectedores==6)
+	{
+		texture.loadFromFile("C:/Users/MSI/Downloads/earthcenter/Textures/redtank.png");
+		sprite.setTexture(texture);
+	}
 }
 
 void Player::render(sf::RenderTarget& target, sf::Shader* shader)
@@ -41,6 +49,10 @@ void Player::updateAttack()
 {
 	if(this->attackCooldown<this->attackCooldownMax)
 	this->attackCooldown += 0.5f;
+
+}
+void Player::updateHp(const int &timer)
+{
 
 }
 const bool Player::canAttack()
@@ -65,13 +77,17 @@ void Player::initSprite()
 }
 void Player::initVariables()
 {
-	this->movementSpeed =25.f;
+	this->movementSpeed =30.f;
 	this->attackCooldownMax = 10.f;
 	this->attackCooldown = this->attackCooldownMax;
+	this->collectedores = 0;
+	this->hpmax = 50;
+	this->hp = this->hpmax;
 }
+
 void Player::initTexture()
 {
-	if(!this->texture.loadFromFile("C:/Users/MSI/Downloads/earthcenter/Textures/redtank.png"))
+	if(!this->texture.loadFromFile(spriteURL))
 		std::cout << "ERROR ::Player::init texture:: failed to load texture" << std::endl;
 }
 
@@ -85,4 +101,49 @@ void Player::setPosition(const float x, const float y)
 {
 	this->sprite.setPosition(x+getBounds().width/2, y+ getBounds().height / 2);
 }
+
+void Player::drill(Collider& other)
+{
+}
+
+void Player::collectOre(int value)
+{
+	collectedores++;
+	gainHp(value);
+}
+
+std::string Player::getName() const
+{
+	return name;
+}
+
+std::string Player::getSpriteURL() const
+{
+	return spriteURL;
+}
+
+int Player::getHp() const
+{
+	return hp;
+}
+
+int Player::getHpMax() const
+{
+	return hpmax;
+}
+
+ Collider Player::getCollider()
+{
+	return Collider(sprite);
+}
+
+ void Player::loseHp(int value)
+ {
+	 hp -= value;
+ }
+
+ void Player::gainHp(int value)
+ {
+	 hp += value;
+ }
 

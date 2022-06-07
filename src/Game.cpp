@@ -4,22 +4,44 @@ Game::Game()
 {
 	this->initVariables();
 	this->initWindow();
-	//this->initTextures();
 	this->initPlayer();
-	
+	this->initGameWorld();
+	this->initShader();
 	this->initFonts();
 	this->initText();
-	this->spawnFossiles();
-	this->initShader();
-	this->initGameWorld();
+	this->initFossiles();
+	this->initObstacles(numberOfObstacles);
+	this->initOres(maxores);
+	this->initAudiomanager();
+	this->initGamemusic();
+	this->initFinish();
+	/*if(!music.openFromFile("C:/Users/MSI/Downloads/earthcenter/Textures/backgroundmusic.ogg"))
+	{
+
+	}
+	if (!soundBuffer.loadFromFile("C:/Users/MSI/Downloads/earthcenter/Textures/drill.wav"))
+	{
+
+	}*/
+	/*audiomanager.addSoundBuffer("C:/Users/MSI/Downloads/earthcenter/Textures/tank2.wav");
+	audiomanager.addSound(*audiomanager.getsoundBuffers()[0]);*/
+/*	if (!mouvingSoundBuffer.loadFromFile("C:/Users/MSI/Downloads/earthcenter/Textures/tank2.wav"))
+	{
+		std::cout << "machakil";
+	}
+	sound.setBuffer(soundBuffer);
+	mouvingSound.setBuffer(mouvingSoundBuffer);
+	mouvingSound.setPlayingOffset(sf::milliseconds(100));
+	mouvingSound.setLoop(true);
+	mouvingSound.setVolume(10);
+	sound.setVolume(50);*/
+	//audiomanager.getsounds()[0]->setVolume(10);
 	
-	//player->setPosition(100,gameWorld->getgridLenth() );
 }
 Game::~Game()
 {
 	delete this->window;
-	delete this->player;
-
+	
 	for (auto& i : this->textures) {
 		delete i.second;
 	}
@@ -31,21 +53,42 @@ void Game::run()
 {
 	while (this->window->isOpen())
 	{
+		/*if (music.getStatus() != music.Playing) 
+		{
+			music.play();
+        }*/
+		
 		gameWorld->updateTime();
 		this->update();
+		
 		this->render();
 	}
 }
-//sf::Clock globalClock;
+
 void Game::render()
 {
+	
 	std::string s = "The name Tyrannosaurus means king of the tyrant lizards";
 	std::cout << "size of string" << s.size() << std::endl;
 	this->window->clear(sf::Color(135,206,235));
 	this->gameWorld->render(*this->window, &shader, player->getPos());
 	this->renderFossiles();
+	//this->obstacle->render(*window);
+	this->renderObstacles();
+	this->renderOres();
 	this->player->render(*this->window);
-	/*mapdemo.load("C:/Users/MSI/Downloads/earthcenter/Textures/demo.tmx");
+	if(this->isfinish)
+	this->finish->render(*this->window);
+	/*sf::Sprite ss;
+	sf::Texture t;
+	t.loadFromFile("C:/Users/MSI/Downloads/earthcenter/Textures/win1.png");
+	ss.setTexture(t);
+	//ss.setScale(1.3f, 1.3f);
+	ss.setOrigin(ss.getGlobalBounds().width / 2.f, ss.getGlobalBounds().height / 2.f);
+	ss.setPosition(view.getCenter());
+	window->draw(ss);*/
+
+	/*mapdemo.load("C:/Users/MSI/Downloads/earthcenter/resources/map.tmx");
 	MapLayer layerZero(mapdemo, 0);
 	MapLayer layerOne(mapdemo, 1);
 	sf::Time duration = globalClock.getElapsedTime();
@@ -55,28 +98,61 @@ void Game::render()
 	/*sf::Sprite test;
 	sf::Texture test2;
 	test2.loadFromFile()*/
-	this->gameWorld->renderTimerText(*this->window);
+	//this->gameWorld->renderTimerText(*this->window);
 	this->renderFossilsPopup();
 	this->window->setView(view);
+	this->gameWorld->renderTimerText(*this->window);
 	this->window->display();
 }
 
 void Game::update()
 {
+	//sound.play();
+    audiomanager->playMusic("background");
+	
 	this->pollEvents();
 
-	gameWorld->updateTimerText(player->getPos());
-	if (!this->endGame || !this->pause)
+
+	int value = 19;
+	value-= (int)gameWorld->getTimer() % 20;
+
+	if (value==0) {
+		value = 19;
+		 player->loseHp(1);
+	
+	}
+	
+	if (!this->endGame || !this->pause||!this->isfinish)
 	{
+		
 		this->updateInput();
 		this->updateCollision();
 		this->player->update();
+		this->updateOres();
+		this->updateObstacles();
+		/*if(obstacle->getCollider().CheckCollision(player->getCollider(), 1.0f)&& sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+		{
+			obstacle->getDamaged(1);
+			obstacle-> update();
+			if (obstacle->getHp() < 0) { delete obstacle; }
+			std::cout << "obstacle damaged :: " << obstacle->getHp()<<std::endl;
+
+		}*/
 		this->updateView();
-		this->updateMousePosition();
+		this->window->setView(view);
+		gameWorld->updateTimerText(view.getCenter());
+		gameWorld->updateGUI(*player);
+		
 		//this->updateText();
 
 	}
-
+	this->updateMousePosition();
+	if (this->isfinish)
+	{
+		this->finish->Updatequiz(this->getMousPositionView(), view.getCenter());
+		this->audiomanager->stopMusic("moving");
+		audiomanager->stopMusic("background");
+	}
 	if (this->gameWorld->getMaxTimer() < this->gameWorld->getTimer())
 	{
 		this->endGame = true;
@@ -108,7 +184,7 @@ void Game::initWindow()
 }
 void Game::initPlayer()
 {
-	this->player = new Player();
+	this->player = std::make_unique<Player>("spear", "C:/Users/MSI/Downloads/earthcenter/Textures/graytank.png");
 
 }
 void Game::initTextures()
@@ -133,11 +209,14 @@ void Game::initText()
 }
 void Game::initGameWorld()
 {
-	this->gameWorld = new GameWorld();
+	this->gameWorld = new GameWorld(*player);
+	this->numberOfObstacles = gameWorld->getgridWidth() / 288;
+	this->maxores = 30;
 }
 
 void Game::initVariables()
 {
+	this->isfinish = false;
 	this->window = nullptr;
 	VIEW_HEIGHT = 600;
 	this->points = 0;
@@ -146,27 +225,136 @@ void Game::initVariables()
 	this->health = 10;
 	this->endGame = false;
 	this->pause = false;
-
+	
 }
+void Game::initObstacles(int numberOfObstacles)
+{
+	int x = 144;
+	firstLayerObstacles.resize(numberOfObstacles);
+	secondLayerObstacles.resize(numberOfObstacles);
+	thirdLayerObstacles.resize(numberOfObstacles);
+	for (int i = 0;i < numberOfObstacles;i++) 
+	{
+		firstLayerObstacles[i] = std::make_unique<Obstacle>(sf::Vector2f(x,gameWorld->getLayerLenth()+288),10);
+			secondLayerObstacles[i]= std::make_unique<Obstacle>(sf::Vector2f(x, gameWorld->getLayerLenth() *2+288),20);
+			thirdLayerObstacles[i]= std::make_unique<Obstacle>(sf::Vector2f(x, gameWorld->getLayerLenth() *3+ 288),30);
+			x += 288;
+	}
+
+
+	
+}
+
+
+void Game::initOres(int maxores)
+{
+	ores.resize(maxores);
+	
+	for(int i=0;i<maxores;i++)
+	{
+		sf::Vector2f pos(random(144,gameWorld->getgridWidth()-144),
+			random(2*288+144, gameWorld->getgridLenth()-144));
+		ores[i] = std::make_unique<Ore>(2,pos);
+	}
+
+	
+}
+
+
 void Game::initShader()
 {
 	if (!this->shader.loadFromFile("C:/Users/MSI/Downloads/earthcenter/Textures/vertex_shader.vert", "C:/Users/MSI/Downloads/earthcenter/Textures/fragment_shader.frag"))
 		std::cout << "ERROR ::Game::init texture:: failed to load shader" << std::endl;
 }
 
+void Game::initFossiles()
+{
+	std::string dino_name = "";
+	this->fossiles.resize(3);
+	for (int i = 0;i < 3;i++) {
+		if (i == 0) { dino_name = "Parasaurolophus.png"; }
+		else if (i == 1) { dino_name = "Triceratops.png"; }
+		else { dino_name = "trex.png"; }
+		sf::Vector2f pos(random(0, 30 * 288 - 720),
+			random(4 * 288, gameWorld->getLayerLenth() * 3 + 288));
+		this->fossiles[i] = std::make_unique<Fossil>(dino_name, pos);
+	}
+
+
+}
+void Game::initAudiomanager()
+{
+	audiomanager = std::make_unique<AudioManager>();
+}
+
+void Game::initGamemusic()
+{
+	std::string bgmusic_url = "C:/Users/MSI/Downloads/earthcenter/Textures/backgroundmusic.ogg";
+	std::string collect = "C:/Users/MSI/Downloads/earthcenter/Textures/collect.ogg";
+	audiomanager->addMusic("background", bgmusic_url);
+	audiomanager->getMusics()["background"]->setVolume(30);
+	audiomanager->addMusic("collect", collect);
+	std::string movingsound_url= "C:/Users/MSI/Downloads/earthcenter/Textures/tank2.wav";
+	std::string drillsound_url= "C:/Users/MSI/Downloads/earthcenter/Textures/drill.wav";
+	audiomanager->addMusic("drill", drillsound_url);
+	audiomanager->addMusic("moving", movingsound_url);
+	audiomanager->getMusics()["moving"]->setPlayingOffset(sf::milliseconds(100));
+	audiomanager->getMusics()["moving"]->setVolume(5);
+	audiomanager->getMusics()["drill"]->setVolume(50);
+}
+
+void Game::initFinish()
+{
+	finish = std::make_unique<Finish>(view.getCenter());
+}
 
 
 //UPDATE FUNCTIONS
 void Game::updateInput()
 {
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-		this->player->move(-1.f, 0.f,DeltaTime());
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-		this->player->move(1.f, 0.f, DeltaTime());
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-		this->player->move(0.f, -1.f, DeltaTime());
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-		this->player->move(0.f, 1.f, DeltaTime());
+	if (!this->isfinish) {
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		{
+			this->player->move(-1.f, 0.f, DeltaTime());
+			/*if (mouvingSound.getStatus() != mouvingSound.Playing)
+				mouvingSound.play();*/
+			audiomanager->playMusic("moving");
+		}
+
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		{
+			this->player->move(1.f, 0.f, DeltaTime());
+			/*	if (audiomanager.getsounds()[0]->getStatus() != audiomanager.getsounds()[0]->Playing)
+					audiomanager.getsounds()[0]->play();*/
+		/*	if (mouvingSound.getStatus() != mouvingSound.Playing)
+				mouvingSound.play();*/
+			audiomanager->playMusic("moving");
+		}
+
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+		{
+			this->player->move(0.f, -1.f, DeltaTime());
+			/*if (mouvingSound.getStatus() != mouvingSound.Playing)
+				mouvingSound.play();*/
+			audiomanager->playMusic("moving");
+		}
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		{
+			this->player->move(0.f, 1.f, DeltaTime());
+			/*if (mouvingSound.getStatus() != mouvingSound.Playing)
+				mouvingSound.play();*/
+			audiomanager->playMusic("moving");
+		}
+		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::S) && !sf::Keyboard::isKeyPressed(sf::Keyboard::W) &&
+			!sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		{
+			/*audiomanager.getsounds()[0]->stop();*/
+			audiomanager->stopMusic("moving");
+		}
+	}
 }
 void Game::updateText()
 {
@@ -230,28 +418,127 @@ void Game::updateView()
 
 void Game::updateCollision()
 {
-	if (player->getBounds().left < 0.f)
-	{
-		std::cout << "left: " << player->getBounds().left << "width" << player->getBounds().width;
-		player->setPosition(0.f, player->getBounds().top);
+	if (!isfinish) {
+		if (player->getBounds().left < 0.f)
+		{
+			std::cout << "left: " << player->getBounds().left << "width" << player->getBounds().width;
+			player->setPosition(0.f, player->getBounds().top);
+		}
+		else if (player->getBounds().left + player->getBounds().width >= gameWorld->getgridWidth())
+		{
+			std::cout << "left: " << player->getBounds().left << "width" << player->getBounds().width;
+			player->setPosition(gameWorld->getgridWidth() - player->getBounds().width, player->getBounds().top);
+		}
+
+		if (player->getBounds().top < 0.f)
+		{
+			player->setPosition(player->getBounds().left, 0.f);
+		}
+		else if (player->getBounds().top + player->getBounds().height >= gameWorld->getgridLenth())
+		{
+			player->setPosition(player->getBounds().left, gameWorld->getgridLenth() - player->getBounds().height);
+			finish->setUpQuiz();
+			isfinish = true;
+
+
+		}
 	}
-	else if (player->getBounds().left + player->getBounds().width >= gameWorld->getgridWidth() )
+}
+void Game::updateObstacles()
+{
+	int i = 0, j = 0, k = 0;
+	for (auto& o : firstLayerObstacles)
 	{
-		std::cout << "left: " << player->getBounds().left << "width" << player->getBounds().width;
-		player->setPosition(gameWorld->getgridWidth()  - player->getBounds().width, player->getBounds().top);
+		if (o) {
+			if (o->getCollider().CheckCollision(player->getCollider(), 1.0f) && sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+
+			{
+				
+				/*sound.setPlayingOffset(sf::seconds(6));
+				
+				if(sound.getStatus()!=sound.Playing)
+				{
+					sound.play();
+				}*/
+				audiomanager->getMusics()["drill"]->setPlayingOffset(sf::seconds(6));
+				audiomanager->playMusic("drill");
+				o->getDamaged(1);
+				o->update();
+				if (o->getHp() <= 0)
+				{
+					firstLayerObstacles.erase(firstLayerObstacles.begin() + i);
+					i--;
+				}
+			}
+			else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) { /*sound.stop();*/audiomanager->stopMusic("drill");
+			}
+		}
+			i++;
+		
+	}
+	for (auto& o : secondLayerObstacles)
+	{
+		if (o) {
+			if (o->getCollider().CheckCollision(player->getCollider(), 1.0f) && sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+
+			{
+				audiomanager->getMusics()["drill"]->setPlayingOffset(sf::seconds(6));
+				audiomanager->playMusic("drill");
+				o->getDamaged(1);
+				o->update();
+				if (o->getHp() <= 0)
+				{
+					secondLayerObstacles.erase(secondLayerObstacles.begin() + j);
+					j--;
+				}
+			}
+			else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) { /*sound.stop();*/audiomanager->stopMusic("drill");
+			}
+		}
+		j++;
+	}
+	for (auto& o : thirdLayerObstacles)
+	{
+		if (o) {
+			if (o->getCollider().CheckCollision(player->getCollider(), 1.0f) && sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+
+			{
+				audiomanager->getMusics()["drill"]->setPlayingOffset(sf::seconds(6));
+				audiomanager->playMusic("drill");
+				o->getDamaged(1);
+				o->update();
+				if (o->getHp() <= 0)
+				{
+					thirdLayerObstacles.erase(thirdLayerObstacles.begin() + k);
+					k--;
+				}
+			}
+			else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) { /*sound.stop();*/audiomanager->stopMusic("drill");
+			}
+		}
+		k++;
+	}
+}
+void Game::updateOres()
+{
+	for (int i = 0;i < maxores;i++)
+	{
+		if (this->ores[i]->getCollider().CheckCollision(player->getCollider(), 0.0f))
+		{
+			//audiomanager->getMusics()["collect"]->setLoop(true);
+		audiomanager->playMusic("collect");
+		//	ores[i]->getCollected();
+		player->collectOre(ores[i]->getValue());
+			ores.erase(ores.begin() + i);
+			maxores--;
+			i--;
+			//audiomanager->stopMusic("collect");
+		}
+		
 	}
 
-	if (player->getBounds().top < 0.f)
-	{
-		player->setPosition(player->getBounds().left, 0.f);
-	}
-	else if (player->getBounds().top + player->getBounds().height >= gameWorld->getgridLenth() )
-	{
-		player->setPosition(player->getBounds().left, gameWorld->getgridLenth()  - player->getBounds().height);
-	}
 
 }
-
 
 int i = 0;
 //RENDER FUNCTIONS
@@ -275,7 +562,8 @@ void Game::renderFossilsPopup()
 
 				fossiles[i]->renderPopUp(*this->window);
 				this->popup = true;
-
+				finish->addCorrectanswers(fossiles[i]->getQuestionFromFossils());
+				fossiles[i]->gotCollected();
 				std::cout << "points: " << this->points << std::endl;
 			}
 		}
@@ -288,10 +576,11 @@ void Game::renderFossilsPopup()
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 	{
-		/*if (popup) {
-			delete fossiles[i];
+		if (popup) {
+			
 			fossiles.erase(fossiles.begin() + i);
-		}*/
+			
+		}
 		
 		popup = false;
 		PopUpChanged = true;
@@ -300,9 +589,9 @@ void Game::renderFossilsPopup()
 }
 void Game::renderFossiles()
 {
-	for (auto* f : this->fossiles)
+	for (auto& f : this->fossiles)
 	{
-
+		if(f)
 		f->render(*this->window);
 	}
 }
@@ -311,7 +600,28 @@ void Game::renderText(sf::RenderTarget& target)
 {
 	target.draw(this->uiText);
 }
-
+void Game::renderObstacles()
+{
+	for (auto& o : firstLayerObstacles)
+	{
+		o->render(*window);
+	}
+	for (auto& o : secondLayerObstacles)
+	{
+		o->render(*window);
+	}
+	for (auto& o : thirdLayerObstacles)
+	{
+		o->render(*window);
+	}
+}
+void Game::renderOres()
+{
+	for (int i = 0;i < maxores;i++)
+	{
+		ores[i]->render(*window);
+	}
+}
 
 
 //GETERS
@@ -323,9 +633,29 @@ const bool Game::getPopUpChanged() const
 {
 	return PopUpChanged;
 }
+Player& Game::getPLayer() const
+{
+	return *player;
+}
+Finish& Game::getFinish() const
+{
+	return *finish;
+}
+std::vector<std::unique_ptr<Fossil>> const &Game::getFossiles() const
+{
+	return fossiles;
+}
+std::vector<std::unique_ptr<Ore>> const& Game::getOres() const
+{
+	return ores;
+}
 const bool Game::getWindowIsOpen()const
 {
 	return this->window->isOpen();
+}
+sf::Vector2f Game::getMousPositionView() const
+{
+	return this->mousPositionView;
 }
 
 
@@ -343,6 +673,11 @@ void Game::pollEvents()
 			if (this->event.key.code == sf::Keyboard::K)
 			{
 				this->window->close();
+
+			}
+			if (this->event.key.code == sf::Keyboard::P)
+			{
+				music.play();
 
 			}
 		}
@@ -366,20 +701,11 @@ int Game::random(int const nbMin, int const nbMax)
 
 	return distribution(engine);
 }
-void Game::spawnFossiles()
+
+
+
+void Game::updateFossils()
 {
-	std::string dino_name = "";
-	this->fossiles.resize(3);
-	for (int i = 0;i < 3;i++) {
-		if (i == 0) { dino_name = "Parasaurolophus.png"; }
-		else if(i==1){ dino_name = "Triceratops.png"; }
-		else{ dino_name = "trex.png"; }
-		sf::Vector2f pos(static_cast<float>(rand() % static_cast<int>(33*288 - 1200)),
-			random(4 * 288, 12 * 288));
-		this->fossiles[i] = (new Fossil(dino_name, pos));
-	}
-
-
 }
 float Game::DeltaTime()
 {

@@ -1,7 +1,10 @@
-
+﻿
 add_executable(mainLauncher mainLauncher.cpp)
-
-target_link_libraries(mainLauncher PUBLIC src pugixml sfml-graphics tmxlite)
+if(WIN32)
+   file(GLOB_RECURSE DYNAMIC_LIBS CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/lib_openal32/${ARCH}/*.dll)
+   file(COPY ${DYNAMIC_LIBS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+endif()
+target_link_libraries(mainLauncher PUBLIC src pugixml sfml-graphics sfml-audio tmxlite sfml-system)
 
 add_custom_target(copy-resources ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/resources)
 file(GLOB RESOURCES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/resources/*.*)
