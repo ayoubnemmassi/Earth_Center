@@ -9,6 +9,11 @@ Collectable::~Collectable()
 {
 }
 
+void Collectable::getCollected(std::string const& name)
+{
+	audiomanager->playMusic(name);
+}
+
 
  sf::Sprite Collectable::getSprite() const
 {
@@ -18,4 +23,16 @@ Collectable::~Collectable()
  int Collectable::getValue() const
  {
 	 return value;
+ }
+
+ void Collectable::initAudiomanager()
+ {
+	 audiomanager = std::make_unique<AudioManager>();
+ }
+
+ void Collectable::initGamemusic(std::string const & name)
+ {
+	 std::string url = "resources/Textures/";
+	 audiomanager->addMusic(name, url+name+".ogg");
+	 
  }

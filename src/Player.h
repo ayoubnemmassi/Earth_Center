@@ -25,6 +25,7 @@ public:
 	void collectOre(int value);
 	std::string getName()const;
 	std::string getSpriteURL()const;
+	float getMouvementSpeed()const;
 	int getHp()const;
 	int getHpMax()const;
 	Collider getCollider();

@@ -56,7 +56,7 @@ void Finish::initSprites(const sf::Vector2f&  position)
 void Finish::initTextures()
 {
 
-	if(!quizTexture.loadFromFile("C:/Users/MSI/Downloads/earthcenter/Textures/quiz4.png"))
+	if(!quizTexture.loadFromFile("resources/Textures/quiz4.png"))
 	{
 
 	}
@@ -64,7 +64,7 @@ void Finish::initTextures()
 	{
 
 	}
-	if (!winTexture.loadFromFile("C:/Users/MSI/Downloads/earthcenter/Textures/win1.png"))
+	if (!winTexture.loadFromFile("resources/Textures/win1.png"))
 	{
 
 	}
@@ -92,10 +92,10 @@ void Finish::initAudiomanager()
 
 void Finish::initGamemusic()
 {
-	std::string firstquestion = "C:/Users/MSI/Downloads/earthcenter/Textures/firstquestion.ogg";
-	std::string secondquestion = "C:/Users/MSI/Downloads/earthcenter/Textures/secondquestion.ogg";
-	std::string finalquestion = "C:/Users/MSI/Downloads/earthcenter/Textures/finalquestion.ogg";
-	std::string win = "C:/Users/MSI/Downloads/earthcenter/Textures/win.ogg";
+	std::string firstquestion = "resources/Textures/firstquestion.ogg";
+	std::string secondquestion ="resources/Textures/secondquestion.ogg";
+	std::string finalquestion = "resources/Textures/finalquestion.ogg";
+	std::string win = "resources/Textures/win.ogg";
 	audiomanager->addMusic("firstquestion", firstquestion);
 	audiomanager->addMusic("secondquestion", secondquestion);
 	audiomanager->addMusic("finalquestion", finalquestion);
@@ -149,7 +149,7 @@ void Finish::Updatequiz(const sf::Vector2f &mousePos, const sf::Vector2f& viewpo
 
 void Finish::initFonts()
 {
-	if (!textFont.loadFromFile("C:/Users/MSI/Downloads/earthcenter/Fonts/FontFile.ttf"))
+	if (!textFont.loadFromFile("resources/Fonts/FontFile.ttf"))
 	{
 		std::cout << "error" << std::endl;
 	}

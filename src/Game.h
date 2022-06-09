@@ -17,6 +17,7 @@
 #include"Ore.h"
 #include"AudioManager.h"
 #include"Finish.h"
+#include"CollectableFactory.h"
 #include <tmxlite/Map.hpp>
 #include"SFMLOrthogonalLayer.h"
 
@@ -46,13 +47,14 @@ public:
 	Player &getPLayer() const;
 	Finish &getFinish() const;
    std::vector<std::unique_ptr<Fossil>> const &getFossiles()const;
-   std::vector<std::unique_ptr<Ore>> const& getOres() const;
+   std::vector<std::unique_ptr<Collectable>> const& getOres() const;
+   AudioManager & getAudioManager() const;
 private:
 	/*
 	* window
 	*/
 	  //variables
-	  sf::RenderWindow* window;
+	 std::unique_ptr< sf::RenderWindow> window;
 	  sf::VideoMode videoMode;
 	  tmx::Map mapdemo;
 	  sf::Clock globalClock;
@@ -159,7 +161,7 @@ private:
 	*/
 	  //variables
 	  Tile* map;
-	  GameWorld* gameWorld;
+	  std::unique_ptr<GameWorld> gameWorld;
 
 	  //functions
 	  void initGameWorld();
@@ -188,14 +190,16 @@ private:
 	* ore
 	*/
 	  Ore* ore;
-	  std::vector<std::unique_ptr< Ore>>ores;
+	  std::vector<std::unique_ptr< Collectable>>ores;
 
 	  int maxores;
 
 	  void initOres(int maxores);
 	  void updateOres();
 	  void renderOres();
+	  public: void  OreCollected(int& position);
 	
+private:
 	  sf::SoundBuffer soundBuffer;
 	  sf::SoundBuffer mouvingSoundBuffer;
 	  sf::Sound sound;

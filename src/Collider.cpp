@@ -5,10 +5,6 @@ Collider::Collider(sf::Sprite& body):
 {
 }
 
-Collider::~Collider()
-{
-}
-
 void Collider::move(float dx, float dy)
 {
 	return body.move(dx, dy);

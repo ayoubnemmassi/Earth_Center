@@ -10,10 +10,6 @@ Obstacle::Obstacle(sf::Vector2f position,int hp):Destroyable{hp}
 	 
 }
 
-Obstacle::~Obstacle()
-{
-}
-
 void Obstacle::render(sf::RenderTarget& target)
 {
 	target.draw(sprite);
@@ -26,7 +22,7 @@ Collider Obstacle::getCollider()
 
 void Obstacle::initTexture(std::string name)
 {
-	std::string url="C:/Users/MSI/Downloads/earthcenter/Textures/";
+	std::string url="resources/Textures/";
 	if(!texture.loadFromFile(url + name))
 	{
 		std::cout << "ERROR::OBSTACLE::FAILED TO LOAD TEXTURE" << std::endl;

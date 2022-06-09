@@ -20,7 +20,7 @@ GameWorld::~GameWorld()
 //INIT FUNCTIONS
 void GameWorld::initTextTimer(std::string font_name)
 {
-	std::string url = "C:/Users/MSI/Downloads/earthcenter/Fonts/";
+	std::string url = "resources/Fonts/";
 
 	if (!timerFont.loadFromFile(url + font_name))
 		std::cout << "gameworld :: cant load " << font_name << std::endl;
@@ -33,7 +33,7 @@ void GameWorld::initTextTimer(std::string font_name)
 
 void GameWorld::initskysprite()
 {
-	std::string url = "C:/Users/MSI/Downloads/earthcenter/Textures/";
+	std::string url = "resources/Textures/";
 	if(!skyTexture.loadFromFile(url + "sky.jpg"))std::cout<<"mased9atch"<<std::endl;
 	sky.setTexture(skyTexture);
 	sky.setPosition(0, -sky.getGlobalBounds().height);
@@ -151,7 +151,7 @@ void GameWorld::setUpTiles()
 {
 	int tilew=0;
 	int tileh=0;
-	std::string url = "C:/Users/MSI/Downloads/earthcenter/Textures/";
+	std::string url = "resources/Textures/";
 	std::string tile = "";
 
 	for (int i = 0; i < gridLenth;i++)
@@ -166,7 +166,7 @@ void GameWorld::setUpTiles()
 		for (int j = 0;j < gridWidth ;j++)
 		{
 			
-			tiles[i][j] = new Tile(url+tile, tilew, tileh, false, false);
+			tiles[i][j] = std::make_unique< Tile>(url+tile, tilew, tileh, false, false);
 			tilew += 288;
 
 		}

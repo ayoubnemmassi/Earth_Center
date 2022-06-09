@@ -45,7 +45,7 @@ void Tile::render(sf::RenderTarget& target, sf::Shader* shader , sf::Vector2f pl
 
 void Tile::initTexture()
 {
-	if (!this->texture.loadFromFile("C:/Users/MSI/Downloads/earthcenter/Textures/Tile_5.png"))
+	if (!this->texture.loadFromFile("resources/Textures/Tile_5.png"))
 		std::cout << "ERROR ::Map::init texture:: failed to load texture" << std::endl;
 }
 

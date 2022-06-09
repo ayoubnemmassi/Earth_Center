@@ -15,48 +15,17 @@ Game::Game()
 	this->initAudiomanager();
 	this->initGamemusic();
 	this->initFinish();
-	/*if(!music.openFromFile("C:/Users/MSI/Downloads/earthcenter/Textures/backgroundmusic.ogg"))
-	{
-
-	}
-	if (!soundBuffer.loadFromFile("C:/Users/MSI/Downloads/earthcenter/Textures/drill.wav"))
-	{
-
-	}*/
-	/*audiomanager.addSoundBuffer("C:/Users/MSI/Downloads/earthcenter/Textures/tank2.wav");
-	audiomanager.addSound(*audiomanager.getsoundBuffers()[0]);*/
-/*	if (!mouvingSoundBuffer.loadFromFile("C:/Users/MSI/Downloads/earthcenter/Textures/tank2.wav"))
-	{
-		std::cout << "machakil";
-	}
-	sound.setBuffer(soundBuffer);
-	mouvingSound.setBuffer(mouvingSoundBuffer);
-	mouvingSound.setPlayingOffset(sf::milliseconds(100));
-	mouvingSound.setLoop(true);
-	mouvingSound.setVolume(10);
-	sound.setVolume(50);*/
-	//audiomanager.getsounds()[0]->setVolume(10);
 	
 }
 Game::~Game()
 {
-	delete this->window;
-	
-	for (auto& i : this->textures) {
-		delete i.second;
-	}
 
-	delete this->gameWorld;
 }
 
 void Game::run()
 {
 	while (this->window->isOpen())
 	{
-		/*if (music.getStatus() != music.Playing) 
-		{
-			music.play();
-        }*/
 		
 		gameWorld->updateTime();
 		this->update();
@@ -67,38 +36,26 @@ void Game::run()
 
 void Game::render()
 {
-	
-	std::string s = "The name Tyrannosaurus means king of the tyrant lizards";
-	std::cout << "size of string" << s.size() << std::endl;
 	this->window->clear(sf::Color(135,206,235));
 	this->gameWorld->render(*this->window, &shader, player->getPos());
 	this->renderFossiles();
-	//this->obstacle->render(*window);
 	this->renderObstacles();
 	this->renderOres();
 	this->player->render(*this->window);
-	if(this->isfinish)
-	this->finish->render(*this->window);
-	/*sf::Sprite ss;
-	sf::Texture t;
-	t.loadFromFile("C:/Users/MSI/Downloads/earthcenter/Textures/win1.png");
-	ss.setTexture(t);
-	//ss.setScale(1.3f, 1.3f);
-	ss.setOrigin(ss.getGlobalBounds().width / 2.f, ss.getGlobalBounds().height / 2.f);
-	ss.setPosition(view.getCenter());
-	window->draw(ss);*/
+	if (this->isfinish)
+	{
+		this->finish->render(*this->window);
+	}
+	
 
-	/*mapdemo.load("C:/Users/MSI/Downloads/earthcenter/resources/map.tmx");
+	this->mapdemo.load("resources/map.tmx");
 	MapLayer layerZero(mapdemo, 0);
 	MapLayer layerOne(mapdemo, 1);
 	sf::Time duration = globalClock.getElapsedTime();
 	layerZero.update(duration);
-	window->draw(layerZero);
-	window->draw(layerOne);*/
-	/*sf::Sprite test;
-	sf::Texture test2;
-	test2.loadFromFile()*/
-	//this->gameWorld->renderTimerText(*this->window);
+	this->window->draw(layerZero);
+	this->window->draw(layerOne);
+
 	this->renderFossilsPopup();
 	this->window->setView(view);
 	this->gameWorld->renderTimerText(*this->window);
@@ -107,7 +64,6 @@ void Game::render()
 
 void Game::update()
 {
-	//sound.play();
     audiomanager->playMusic("background");
 	
 	this->pollEvents();
@@ -130,20 +86,10 @@ void Game::update()
 		this->player->update();
 		this->updateOres();
 		this->updateObstacles();
-		/*if(obstacle->getCollider().CheckCollision(player->getCollider(), 1.0f)&& sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-		{
-			obstacle->getDamaged(1);
-			obstacle-> update();
-			if (obstacle->getHp() < 0) { delete obstacle; }
-			std::cout << "obstacle damaged :: " << obstacle->getHp()<<std::endl;
-
-		}*/
 		this->updateView();
 		this->window->setView(view);
-		gameWorld->updateTimerText(view.getCenter());
-		gameWorld->updateGUI(*player);
-		
-		//this->updateText();
+		this->gameWorld->updateTimerText(view.getCenter());
+		this->gameWorld->updateGUI(*player);
 
 	}
 	this->updateMousePosition();
@@ -157,14 +103,11 @@ void Game::update()
 	{
 		this->endGame = true;
 
-
 	}
 	if (this->health <= 0)
 	{
 		this->endGame = true;
 	}
-	std::cout << "playerpos" << player->getPos().y << std::endl;
-	std::cout << "endpos" << gameWorld->getgridLenth() << std::endl;
 
 }
 
@@ -173,29 +116,27 @@ void Game::update()
 //INIT FUNCTIONS 
 void Game::initWindow()
 {
-	//this->view.setCenter(0.f, 0.f);
+
 	this->view.setSize(VIEW_HEIGHT, VIEW_HEIGHT);
 	this->videoMode.height = 600;
 	this->videoMode.width = 600;
-	this->window = new sf::RenderWindow(this->videoMode, "Game 3", sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize);
+	this->window = std::make_unique< sf::RenderWindow>(this->videoMode, "Game 3", sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize);
 	texturerender.create(600, 600);
 	this->window->setFramerateLimit(120);
 	this->window->setVerticalSyncEnabled(false);
 }
 void Game::initPlayer()
 {
-	this->player = std::make_unique<Player>("spear", "C:/Users/MSI/Downloads/earthcenter/Textures/graytank.png");
+	this->player = std::make_unique<Player>("spear", "resources/Textures/graytank.png");
 
 }
 void Game::initTextures()
 {
-	this->textures["BULLET"] = new sf::Texture();
-	this->textures["BULLET"]->loadFromFile("C:/Users/MSI/Downloads/game3/Textures/bullet.png");
 		
 }
 void Game::initFonts()
 {
-	if (!this->font.loadFromFile("C:/Users/MSI/Downloads/game3/Fonts/Dosis-Light.ttf"))
+	if (!this->font.loadFromFile("resources/Fonts/Dosis-Light.ttf"))
 	{
 		std::cout << "ERROR ::GAME:: failed to load font" << std::endl;
 	}
@@ -209,7 +150,7 @@ void Game::initText()
 }
 void Game::initGameWorld()
 {
-	this->gameWorld = new GameWorld(*player);
+	this->gameWorld = std::make_unique<GameWorld>(*player);
 	this->numberOfObstacles = gameWorld->getgridWidth() / 288;
 	this->maxores = 30;
 }
@@ -254,7 +195,8 @@ void Game::initOres(int maxores)
 	{
 		sf::Vector2f pos(random(144,gameWorld->getgridWidth()-144),
 			random(2*288+144, gameWorld->getgridLenth()-144));
-		ores[i] = std::make_unique<Ore>(2,pos);
+
+		ores[i] =CollectableFactory::createCollectable(1,2,pos,"collect");
 	}
 
 	
@@ -263,7 +205,7 @@ void Game::initOres(int maxores)
 
 void Game::initShader()
 {
-	if (!this->shader.loadFromFile("C:/Users/MSI/Downloads/earthcenter/Textures/vertex_shader.vert", "C:/Users/MSI/Downloads/earthcenter/Textures/fragment_shader.frag"))
+	if (!this->shader.loadFromFile("resources/Textures/vertex_shader.vert", "resources/Textures/fragment_shader.frag"))
 		std::cout << "ERROR ::Game::init texture:: failed to load shader" << std::endl;
 }
 
@@ -289,18 +231,20 @@ void Game::initAudiomanager()
 
 void Game::initGamemusic()
 {
-	std::string bgmusic_url = "C:/Users/MSI/Downloads/earthcenter/Textures/backgroundmusic.ogg";
-	std::string collect = "C:/Users/MSI/Downloads/earthcenter/Textures/collect.ogg";
+	std::string bgmusic_url = "resources/Textures/backgroundmusic.ogg";
+	std::string collect = "resources/Textures/collect.ogg";
+	std::string movingsound_url = "resources/Textures/tank2.wav";
+	std::string drillsound_url = "resources/Textures/drill.wav";
+
 	audiomanager->addMusic("background", bgmusic_url);
-	audiomanager->getMusics()["background"]->setVolume(30);
 	audiomanager->addMusic("collect", collect);
-	std::string movingsound_url= "C:/Users/MSI/Downloads/earthcenter/Textures/tank2.wav";
-	std::string drillsound_url= "C:/Users/MSI/Downloads/earthcenter/Textures/drill.wav";
 	audiomanager->addMusic("drill", drillsound_url);
 	audiomanager->addMusic("moving", movingsound_url);
+
 	audiomanager->getMusics()["moving"]->setPlayingOffset(sf::milliseconds(100));
 	audiomanager->getMusics()["moving"]->setVolume(5);
 	audiomanager->getMusics()["drill"]->setVolume(50);
+	audiomanager->getMusics()["background"]->setVolume(30);
 }
 
 void Game::initFinish()
@@ -316,8 +260,6 @@ void Game::updateInput()
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 		{
 			this->player->move(-1.f, 0.f, DeltaTime());
-			/*if (mouvingSound.getStatus() != mouvingSound.Playing)
-				mouvingSound.play();*/
 			audiomanager->playMusic("moving");
 		}
 
@@ -325,10 +267,6 @@ void Game::updateInput()
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 		{
 			this->player->move(1.f, 0.f, DeltaTime());
-			/*	if (audiomanager.getsounds()[0]->getStatus() != audiomanager.getsounds()[0]->Playing)
-					audiomanager.getsounds()[0]->play();*/
-		/*	if (mouvingSound.getStatus() != mouvingSound.Playing)
-				mouvingSound.play();*/
 			audiomanager->playMusic("moving");
 		}
 
@@ -336,22 +274,17 @@ void Game::updateInput()
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 		{
 			this->player->move(0.f, -1.f, DeltaTime());
-			/*if (mouvingSound.getStatus() != mouvingSound.Playing)
-				mouvingSound.play();*/
 			audiomanager->playMusic("moving");
 		}
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 		{
 			this->player->move(0.f, 1.f, DeltaTime());
-			/*if (mouvingSound.getStatus() != mouvingSound.Playing)
-				mouvingSound.play();*/
 			audiomanager->playMusic("moving");
 		}
 		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::S) && !sf::Keyboard::isKeyPressed(sf::Keyboard::W) &&
 			!sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 		{
-			/*audiomanager.getsounds()[0]->stop();*/
 			audiomanager->stopMusic("moving");
 		}
 	}
@@ -388,21 +321,18 @@ void Game::updateView()
 	//bottom
 	if (player->getPos().y + view.getSize().y / 2 >= gameWorld->getgridLenth() && player->getPos().x - view.getSize().x / 2 <= 0)
 	{
-		//view.setCenter(player->getPos());
 		view.setCenter(view.getSize().x / 2, gameWorld->getgridLenth() - view.getSize().y / 2);
 		middle = false;
 	}
 	else if (player->getPos().y + view.getSize().y / 2 >= gameWorld->getgridLenth() && player->getPos().x + view.getSize().x / 2 >= gameWorld->getgridWidth())
 		
 	{
-		//view.setCenter(player->getPos());
 		view.setCenter(gameWorld->getgridWidth() - view.getSize().x / 2, gameWorld->getgridLenth() - view.getSize().y / 2);
 		middle = false;
 	}
 	else
 	  if(player->getPos().y+view.getSize().y/2>=gameWorld->getgridLenth())
 	{
-		//view.setCenter(player->getPos());
 		 view.setCenter(player->getPos().x, gameWorld->getgridLenth()-view.getSize().y / 2);
 		 middle = false;
 	}
@@ -410,7 +340,6 @@ void Game::updateView()
 	 
 	if(middle)
 	{
-		//view.setCenter(player->getPos().x, view.getSize().y / 2);
 		 view.setCenter(player->getPos());
 	}
 	std::cout << "player->getPos().y+view.getSize().y/2: " << player->getPos().y + view.getSize().y / 2 << std::endl;
@@ -447,19 +376,12 @@ void Game::updateCollision()
 void Game::updateObstacles()
 {
 	int i = 0, j = 0, k = 0;
-	for (auto& o : firstLayerObstacles)
+	for (const auto& o : firstLayerObstacles)
 	{
 		if (o) {
 			if (o->getCollider().CheckCollision(player->getCollider(), 1.0f) && sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 
 			{
-				
-				/*sound.setPlayingOffset(sf::seconds(6));
-				
-				if(sound.getStatus()!=sound.Playing)
-				{
-					sound.play();
-				}*/
 				audiomanager->getMusics()["drill"]->setPlayingOffset(sf::seconds(6));
 				audiomanager->playMusic("drill");
 				o->getDamaged(1);
@@ -470,13 +392,13 @@ void Game::updateObstacles()
 					i--;
 				}
 			}
-			else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) { /*sound.stop();*/audiomanager->stopMusic("drill");
+			else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) { audiomanager->stopMusic("drill");
 			}
 		}
 			i++;
 		
 	}
-	for (auto& o : secondLayerObstacles)
+	for (const auto&  o : secondLayerObstacles)
 	{
 		if (o) {
 			if (o->getCollider().CheckCollision(player->getCollider(), 1.0f) && sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
@@ -492,12 +414,12 @@ void Game::updateObstacles()
 					j--;
 				}
 			}
-			else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) { /*sound.stop();*/audiomanager->stopMusic("drill");
+			else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) { audiomanager->stopMusic("drill");
 			}
 		}
 		j++;
 	}
-	for (auto& o : thirdLayerObstacles)
+	for (const auto& o : thirdLayerObstacles)
 	{
 		if (o) {
 			if (o->getCollider().CheckCollision(player->getCollider(), 1.0f) && sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
@@ -513,7 +435,7 @@ void Game::updateObstacles()
 					k--;
 				}
 			}
-			else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) { /*sound.stop();*/audiomanager->stopMusic("drill");
+			else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) { audiomanager->stopMusic("drill");
 			}
 		}
 		k++;
@@ -525,23 +447,23 @@ void Game::updateOres()
 	{
 		if (this->ores[i]->getCollider().CheckCollision(player->getCollider(), 0.0f))
 		{
-			//audiomanager->getMusics()["collect"]->setLoop(true);
-		audiomanager->playMusic("collect");
-		//	ores[i]->getCollected();
-		player->collectOre(ores[i]->getValue());
-			ores.erase(ores.begin() + i);
-			maxores--;
-			i--;
-			//audiomanager->stopMusic("collect");
+			this->OreCollected(i);
 		}
 		
 	}
 
 
 }
+void Game::OreCollected(int & position)
+{
+	audiomanager->playMusic("collect");
+	player->collectOre(ores[position]->getValue());
+	ores.erase(ores.begin() + position);
+	maxores--;
+	position--;
+}
 
 int i = 0;
-//RENDER FUNCTIONS
 void Game::renderFossilsPopup()
 {
 	
@@ -589,10 +511,13 @@ void Game::renderFossilsPopup()
 }
 void Game::renderFossiles()
 {
-	for (auto& f : this->fossiles)
+	for (const auto& f : this->fossiles)
 	{
-		if(f)
-		f->render(*this->window);
+		if (f) 
+		{
+			f->render(*this->window);
+		}
+		
 	}
 }
 
@@ -602,15 +527,15 @@ void Game::renderText(sf::RenderTarget& target)
 }
 void Game::renderObstacles()
 {
-	for (auto& o : firstLayerObstacles)
+	for (const auto& o : firstLayerObstacles)
 	{
 		o->render(*window);
 	}
-	for (auto& o : secondLayerObstacles)
+	for (const auto& o : secondLayerObstacles)
 	{
 		o->render(*window);
 	}
-	for (auto& o : thirdLayerObstacles)
+	for (const auto& o : thirdLayerObstacles)
 	{
 		o->render(*window);
 	}
@@ -645,9 +570,13 @@ std::vector<std::unique_ptr<Fossil>> const &Game::getFossiles() const
 {
 	return fossiles;
 }
-std::vector<std::unique_ptr<Ore>> const& Game::getOres() const
+std::vector<std::unique_ptr<Collectable>> const& Game::getOres() const
 {
 	return ores;
+}
+AudioManager& Game::getAudioManager() const
+{
+	return *audiomanager;
 }
 const bool Game::getWindowIsOpen()const
 {

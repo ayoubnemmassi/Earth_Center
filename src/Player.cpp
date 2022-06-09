@@ -13,19 +13,18 @@ Player::Player(const std::string& name, const std::string& spriteurl):name{name}
 const sf::FloatRect Player::getBounds() const
 {
 	return this->sprite.getGlobalBounds();
-		//sf::FloatRect(this->sprite.getGlobalBounds().left- this->sprite.getGlobalBounds().width/2, this->sprite.getGlobalBounds().top - this->sprite.getGlobalBounds().height / 2, this->sprite.getGlobalBounds().width, this->sprite.getGlobalBounds().height);//this->sprite.getGlobalBounds().;
 }
 void Player::update()
 {
 	this->updateAttack();
 	if (collectedores == 3)
 	{
-		texture.loadFromFile("C:/Users/MSI/Downloads/earthcenter/Textures/bluetank.png");
+		texture.loadFromFile("resources/Textures/bluetank.png");
 		sprite.setTexture(texture);
 	}
 	else if(collectedores==6)
 	{
-		texture.loadFromFile("C:/Users/MSI/Downloads/earthcenter/Textures/redtank.png");
+		texture.loadFromFile("resources/Textures/redtank.png");
 		sprite.setTexture(texture);
 	}
 }
@@ -120,6 +119,11 @@ std::string Player::getName() const
 std::string Player::getSpriteURL() const
 {
 	return spriteURL;
+}
+
+float Player::getMouvementSpeed() const
+{
+	return movementSpeed;
 }
 
 int Player::getHp() const

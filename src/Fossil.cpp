@@ -75,7 +75,7 @@ void Fossil::initTricinfo()
 
 void Fossil::initinfotext(std::string info)
 {
-	if (!infoFont.loadFromFile("C:/Users/MSI/Downloads/earthcenter/Fonts/FontFile.ttf")) 
+	if (!infoFont.loadFromFile("resources/Fonts/FontFile.ttf")) 
 	{
 		std::cout << "error" << std::endl;
 	}
@@ -113,7 +113,7 @@ std::string Fossil::getQuestionFromFossils()const
 
 void Fossil::initTexture(std::string name)
 {
-	std::string url = "C:/Users/MSI/Downloads/earthcenter/Textures/";
+	std::string url = "resources/Textures/";
 	if (!this->texture.loadFromFile(url+name))
 		std::cout << "ERROR ::Player::init texture:: failed to load texture" << std::endl;
 }
@@ -131,7 +131,7 @@ void Fossil::initSprite(std::string name)
 
 void Fossil::initPopUpTexture()
 {
-	if (!this->texturePopUp.loadFromFile("C:/Users/MSI/Downloads/earthcenter/Textures/popupwood.png"))
+	if (!this->texturePopUp.loadFromFile("resources/Textures/popupwood.png"))
 		std::cout << "ERROR ::Player::init texture:: failed to load texture" << std::endl;
 	
 }
@@ -154,7 +154,7 @@ void Fossil::initAudiomanager()
 
 void Fossil::initGamemusic()
 {
-	std::string collect = "C:/Users/MSI/Downloads/earthcenter/Textures/fossilcollected.ogg";
+	std::string collect = "resources/Textures/fossilcollected.ogg";
 
 	audiomanager->addMusic("collectFossil", collect);
 }

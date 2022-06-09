@@ -9,9 +9,6 @@ Enemy::Enemy(float pos_x,float pos_y)
 	
 }
 
-Enemy::~Enemy()
-{
-}
 
 void Enemy::update()
 {

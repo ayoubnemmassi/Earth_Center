@@ -10,7 +10,7 @@ class Enemy
 {
 public:
 	Enemy(float pos_x, float pos_y);
-	~Enemy();
+
 	//functions
 	void update();
 	void render(sf::RenderTarget& target);

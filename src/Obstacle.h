@@ -7,7 +7,7 @@ class Obstacle:public Destroyable
 {
 public:
 	Obstacle(sf::Vector2f position,int hp);
-	~Obstacle();
+
 	void render(sf::RenderTarget& target);
 	Collider getCollider();
 	

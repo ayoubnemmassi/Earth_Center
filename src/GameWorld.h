@@ -41,7 +41,7 @@ private:
 	sf::Sprite sky;
 	sf::Texture skyTexture;
 	std::vector<sf::Vector2i> enemyPos;
-	std::vector<std::vector<Tile*>>tiles;
+	std::vector<std::vector<std::unique_ptr<Tile>>>tiles;
 	
 	void setUpInitialState();
 	void setUpEnemyPositions();

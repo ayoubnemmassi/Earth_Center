@@ -8,7 +8,7 @@ void AudioManager::addSound(std::string name, std::string url)
 {
 	this->sounds[name] = std::make_shared<sf::Sound>();
 	sf::SoundBuffer sound_buffer;
-	if(!sound_buffer.loadFromFile(url))std::cout<<"mashakil"<<std::endl;
+	if(!sound_buffer.loadFromFile(url))std::cout<<"AUDIOMANAGER::FAILED TO LOAD BUFFER FILE"<<std::endl;
 	this->sounds[name]->setBuffer(sound_buffer);
 }
 
