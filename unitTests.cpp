@@ -15,7 +15,7 @@ TEST(TestGame, TestPlayer) {
 	game = new Game();
 	//game.getPLayer();
 	std::unique_ptr<Player> player;
-	player = std::make_unique<Player>("spear", "C:/Users/MSI/Downloads/earthcenter/Textures/graytank.png");
+	player = std::make_unique<Player>("spear", "resources/Textures/graytank.png");
 	std::cout << "holla " << game->getPLayer().getName() << std::endl;
 	EXPECT_EQ(player->getName(), game->getPLayer().getName());
 	EXPECT_EQ(player->getSpriteURL(), game->getPLayer().getSpriteURL());

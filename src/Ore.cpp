@@ -37,8 +37,9 @@ std::string Ore::test()
 	return "ore";
 }
 
-void Ore::initTexture(std::string const& Orename)
+void Ore::initTexture(std::string const & Orename)
 {
+	
 	std::string url = "resources/Textures/";
 	if (!texture.loadFromFile(url + Orename))
 	{

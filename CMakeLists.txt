@@ -126,3 +126,25 @@ add_executable(unitTests unitTests.cpp)
 target_link_libraries(unitTests gtest_main)
 target_link_libraries(unitTests src pugixml sfml-graphics tmxlite sfml-system sfml-audio)
 add_test(NAME that-test-I-made COMMAND unitTests)
+
+
+add_custom_target(copy-resources-unitTest ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/resources)
+file(GLOB RESOURCES_UNITTESTS CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/resources/*.*)
+file(GLOB RESOURCES_TEXTURES_UNITTESTS CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/resources/Textures/*.*)
+file(GLOB RESOURCES_FONTS_UNITTESTS CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/resources/Fonts/*.*)
+add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/resources
+                   DEPENDS ${CMAKE_SOURCE_DIR}/resources
+                   COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/resources
+                   COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/resources/Textures
+                   COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/resources/Fonts
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                           ${RESOURCES_UNITTESTS}
+                           ${CMAKE_CURRENT_BINARY_DIR}/resources
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                           ${RESOURCES_TEXTURES_UNITTESTS}
+                           ${CMAKE_CURRENT_BINARY_DIR}/resources/Textures
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                           ${RESOURCES_FONTS_UNITTESTS}
+                           ${CMAKE_CURRENT_BINARY_DIR}/resources/Fonts
+                           )
+add_dependencies(unitTests copy-resources-unitTest)

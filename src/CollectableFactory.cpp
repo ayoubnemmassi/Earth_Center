@@ -10,6 +10,7 @@
 		collectable = std::make_unique<Ore>(value, pos,name);
 		break;
 	}
+
 	default:
 	{
 		std::cout << "invalid type" << std::endl;

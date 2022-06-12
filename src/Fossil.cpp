@@ -27,7 +27,7 @@ void Fossil::update()
 
 void Fossil::updatePopup()
 {
-	randomnumber = rand() % 3;
+	 randomnumber = rand() % 3;
 }
 
 void Fossil::render(sf::RenderTarget& target)

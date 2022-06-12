@@ -17,7 +17,7 @@ Finish::Finish(const sf::Vector2f &  position)
 void Finish::render(sf::RenderTarget& target)
 {
 	if(isquiz){
-		target.draw(genieSprite);
+		//target.draw(genieSprite);
 		target.draw(quizSprite);
 		float y = target.getView().getCenter().y - 100;
 		for (int i = 0;i < quizQuestions[quizNumber].size();i++)
@@ -165,7 +165,6 @@ void Finish::setUpQuiz()
 			if(i==correctAnswerPos)
 			{
 				sf::Text answer;
-
 				answer.setFont(textFont);
 				answer.setCharacterSize(30);
 				answer.setFillColor(sf::Color::Black);

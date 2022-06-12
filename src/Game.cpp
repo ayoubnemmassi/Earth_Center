@@ -1,5 +1,8 @@
 #include "Game.h"
 
+/**
+*constructeur / facade
+*/
 Game::Game()
 {
 	this->initVariables();
@@ -15,84 +18,93 @@ Game::Game()
 	this->initAudiomanager();
 	this->initGamemusic();
 	this->initFinish();
-	
+
 }
+
+//deconstructeur
 Game::~Game()
 {
 
 }
 
+/*
+* la methode qui lance le jeux
+*/
 void Game::run()
 {
 	while (this->window->isOpen())
 	{
-		
 		gameWorld->updateTime();
 		this->update();
-		
 		this->render();
 	}
 }
 
+/*
+* render all game objects in the window
+*/
 void Game::render()
 {
-	this->window->clear(sf::Color(135,206,235));
+	this->window->clear(sf::Color(135, 206, 235)); //supprimer l'ancien frame
 	this->gameWorld->render(*this->window, &shader, player->getPos());
 	this->renderFossiles();
 	this->renderObstacles();
 	this->renderOres();
-	this->player->render(*this->window);
+
+
 	if (this->isfinish)
 	{
 		this->finish->render(*this->window);
 	}
-	
+
 
 	this->mapdemo.load("resources/map.tmx");
 	MapLayer layerZero(mapdemo, 0);
-	MapLayer layerOne(mapdemo, 1);
+	//MapLayer layerOne(mapdemo, 1);
 	sf::Time duration = globalClock.getElapsedTime();
 	layerZero.update(duration);
 	this->window->draw(layerZero);
-	this->window->draw(layerOne);
-
+	//this->window->draw(layerOne);
+	this->player->render(*this->window);
 	this->renderFossilsPopup();
 	this->window->setView(view);
 	this->gameWorld->renderTimerText(*this->window);
 	this->window->display();
 }
 
+/*
+* update game objects
+*/
 void Game::update()
 {
-    audiomanager->playMusic("background");
-	
+	audiomanager->playMusic("background");
+
 	this->pollEvents();
-
-
 	int value = 19;
-	value-= (int)gameWorld->getTimer() % 20;
+	value -= (int)gameWorld->getTimer() % 20;
 
-	if (value==0) {
+	if (value == 0) {
 		value = 19;
-		 player->loseHp(1);
-	
+		player->loseHp(1);
+
 	}
-	
-	if (!this->endGame || !this->pause||!this->isfinish)
+
+	if (!this->endGame || !this->pause || !this->isfinish)
 	{
-		
+
 		this->updateInput();
 		this->updateCollision();
 		this->player->update();
 		this->updateOres();
 		this->updateObstacles();
+
 		this->updateView();
 		this->window->setView(view);
 		this->gameWorld->updateTimerText(view.getCenter());
 		this->gameWorld->updateGUI(*player);
-
 	}
 	this->updateMousePosition();
+
 	if (this->isfinish)
 	{
 		this->finish->Updatequiz(this->getMousPositionView(), view.getCenter());
@@ -112,8 +124,9 @@ void Game::update()
 }
 
 
-
-//INIT FUNCTIONS 
+/*
+* init functions
+*/
 void Game::initWindow()
 {
 
@@ -132,7 +145,7 @@ void Game::initPlayer()
 }
 void Game::initTextures()
 {
-		
+
 }
 void Game::initFonts()
 {
@@ -166,42 +179,41 @@ void Game::initVariables()
 	this->health = 10;
 	this->endGame = false;
 	this->pause = false;
-	
+
 }
+
 void Game::initObstacles(int numberOfObstacles)
 {
 	int x = 144;
 	firstLayerObstacles.resize(numberOfObstacles);
 	secondLayerObstacles.resize(numberOfObstacles);
 	thirdLayerObstacles.resize(numberOfObstacles);
-	for (int i = 0;i < numberOfObstacles;i++) 
+	for (int i = 0; i < numberOfObstacles; i++)
 	{
-		firstLayerObstacles[i] = std::make_unique<Obstacle>(sf::Vector2f(x,gameWorld->getLayerLenth()+288),10);
-			secondLayerObstacles[i]= std::make_unique<Obstacle>(sf::Vector2f(x, gameWorld->getLayerLenth() *2+288),20);
-			thirdLayerObstacles[i]= std::make_unique<Obstacle>(sf::Vector2f(x, gameWorld->getLayerLenth() *3+ 288),30);
-			x += 288;
+		firstLayerObstacles[i] = std::make_unique<Obstacle>(sf::Vector2f(x, gameWorld->getLayerLenth() + 288), 10);
+		secondLayerObstacles[i] = std::make_unique<Obstacle>(sf::Vector2f(x, gameWorld->getLayerLenth() * 2 + 288), 20);
+		thirdLayerObstacles[i] = std::make_unique<Obstacle>(sf::Vector2f(x, gameWorld->getLayerLenth() * 3 + 288), 30);
+		x += 288;
 	}
 
 
-	
-}
 
+}
 
 void Game::initOres(int maxores)
 {
 	ores.resize(maxores);
-	
-	for(int i=0;i<maxores;i++)
-	{
-		sf::Vector2f pos(random(144,gameWorld->getgridWidth()-144),
-			random(2*288+144, gameWorld->getgridLenth()-144));
 
-		ores[i] =CollectableFactory::createCollectable(1,2,pos,"collect");
+	for (int i = 0; i < maxores; i++)
+	{
+		sf::Vector2f pos(random(144, gameWorld->getgridWidth() - 144),
+			random(2 * 288 + 144, gameWorld->getgridLenth() - 144));
+
+		ores[i] = CollectableFactory::createCollectable(1, 2, pos, "collect");
 	}
 
-	
-}
 
+}
 
 void Game::initShader()
 {
@@ -213,7 +225,7 @@ void Game::initFossiles()
 {
 	std::string dino_name = "";
 	this->fossiles.resize(3);
-	for (int i = 0;i < 3;i++) {
+	for (int i = 0; i < 3; i++) {
 		if (i == 0) { dino_name = "Parasaurolophus.png"; }
 		else if (i == 1) { dino_name = "Triceratops.png"; }
 		else { dino_name = "trex.png"; }
@@ -224,6 +236,7 @@ void Game::initFossiles()
 
 
 }
+
 void Game::initAudiomanager()
 {
 	audiomanager = std::make_unique<AudioManager>();
@@ -253,7 +266,9 @@ void Game::initFinish()
 }
 
 
-//UPDATE FUNCTIONS
+/*
+* update functions
+*/
 void Game::updateInput()
 {
 	if (!this->isfinish) {
@@ -270,7 +285,6 @@ void Game::updateInput()
 			audiomanager->playMusic("moving");
 		}
 
-
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 		{
 			this->player->move(0.f, -1.f, DeltaTime());
@@ -282,6 +296,9 @@ void Game::updateInput()
 			this->player->move(0.f, 1.f, DeltaTime());
 			audiomanager->playMusic("moving");
 		}
+		/*
+		* music stops when all keyboard inputs are not pressed
+		*/
 		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::S) && !sf::Keyboard::isKeyPressed(sf::Keyboard::W) &&
 			!sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 		{
@@ -289,6 +306,7 @@ void Game::updateInput()
 		}
 	}
 }
+
 void Game::updateText()
 {
 	std::stringstream ss;
@@ -303,44 +321,46 @@ void Game::updateMousePosition()
 	this->mousPosition = sf::Mouse::getPosition(*this->window);
 	this->mousPositionView = this->window->mapPixelToCoords(this->mousPosition);
 }
+
+/*
+* change la position de la camera pour fixer le player au centre
+*/
 void Game::updateView()
 {
 	bool middle = true;
-	std::cout << view.getCenter().x - view.getSize().x /2  << std::endl;
-	//left
+	std::cout << view.getCenter().x - view.getSize().x / 2 << std::endl;
+	//camera left collision
 	if (player->getPos().x - view.getSize().x / 2 <= 0) {
 		view.setCenter(view.getSize().x / 2, player->getPos().y);
 		middle = false;
 	}
-	//right
+	//camera right collision
 	else if (player->getPos().x + view.getSize().x / 2 >= gameWorld->getgridWidth())
 	{
-		view.setCenter(gameWorld->getgridWidth() -view.getSize().x / 2, player->getPos().y);
+		view.setCenter(gameWorld->getgridWidth() - view.getSize().x / 2, player->getPos().y);
 		middle = false;
 	}
-	//bottom
+	//camera bottom collision
 	if (player->getPos().y + view.getSize().y / 2 >= gameWorld->getgridLenth() && player->getPos().x - view.getSize().x / 2 <= 0)
 	{
 		view.setCenter(view.getSize().x / 2, gameWorld->getgridLenth() - view.getSize().y / 2);
 		middle = false;
 	}
 	else if (player->getPos().y + view.getSize().y / 2 >= gameWorld->getgridLenth() && player->getPos().x + view.getSize().x / 2 >= gameWorld->getgridWidth())
-		
+
 	{
 		view.setCenter(gameWorld->getgridWidth() - view.getSize().x / 2, gameWorld->getgridLenth() - view.getSize().y / 2);
 		middle = false;
 	}
-	else
-	  if(player->getPos().y+view.getSize().y/2>=gameWorld->getgridLenth())
+	else if (player->getPos().y + view.getSize().y / 2 >= gameWorld->getgridLenth())
 	{
-		 view.setCenter(player->getPos().x, gameWorld->getgridLenth()-view.getSize().y / 2);
-		 middle = false;
+		view.setCenter(player->getPos().x, gameWorld->getgridLenth() - view.getSize().y / 2);
+		middle = false;
 	}
-
-	 
-	if(middle)
+	//set the player at center position
+	if (middle)
 	{
-		 view.setCenter(player->getPos());
+		view.setCenter(player->getPos());
 	}
 	std::cout << "player->getPos().y+view.getSize().y/2: " << player->getPos().y + view.getSize().y / 2 << std::endl;
 }
@@ -366,20 +386,26 @@ void Game::updateCollision()
 		else if (player->getBounds().top + player->getBounds().height >= gameWorld->getgridLenth())
 		{
 			player->setPosition(player->getBounds().left, gameWorld->getgridLenth() - player->getBounds().height);
-			finish->setUpQuiz();
-			isfinish = true;
+			if(fossiles.size()==0)
+			{
+				finish->setUpQuiz();
+				isfinish = true;
+			}
+			
 
 
 		}
 	}
 }
+
 void Game::updateObstacles()
 {
 	int i = 0, j = 0, k = 0;
 	for (const auto& o : firstLayerObstacles)
 	{
 		if (o) {
-			if (o->getCollider().CheckCollision(player->getCollider(), 1.0f) && sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+			Collider collider = player->getCollider();
+			if (o->getCollider().CheckCollision(collider, 1.0f) && sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 
 			{
 				audiomanager->getMusics()["drill"]->setPlayingOffset(sf::seconds(6));
@@ -392,16 +418,19 @@ void Game::updateObstacles()
 					i--;
 				}
 			}
-			else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) { audiomanager->stopMusic("drill");
+			else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+				audiomanager->stopMusic("drill");
 			}
 		}
-			i++;
-		
+		i++;
+
 	}
-	for (const auto&  o : secondLayerObstacles)
+
+	for (const auto& o : secondLayerObstacles)
 	{
 		if (o) {
-			if (o->getCollider().CheckCollision(player->getCollider(), 1.0f) && sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+			Collider collider = player->getCollider();
+			if (o->getCollider().CheckCollision(collider, 1.0f) && sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 
 			{
 				audiomanager->getMusics()["drill"]->setPlayingOffset(sf::seconds(6));
@@ -414,15 +443,18 @@ void Game::updateObstacles()
 					j--;
 				}
 			}
-			else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) { audiomanager->stopMusic("drill");
+			else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+				audiomanager->stopMusic("drill");
 			}
 		}
 		j++;
 	}
+
 	for (const auto& o : thirdLayerObstacles)
 	{
 		if (o) {
-			if (o->getCollider().CheckCollision(player->getCollider(), 1.0f) && sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+			Collider collider = player->getCollider();
+			if (o->getCollider().CheckCollision(collider, 1.0f) && sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 
 			{
 				audiomanager->getMusics()["drill"]->setPlayingOffset(sf::seconds(6));
@@ -435,26 +467,28 @@ void Game::updateObstacles()
 					k--;
 				}
 			}
-			else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) { audiomanager->stopMusic("drill");
+			else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+				audiomanager->stopMusic("drill");
 			}
 		}
 		k++;
 	}
 }
+
 void Game::updateOres()
 {
-	for (int i = 0;i < maxores;i++)
+	for (int i = 0; i < maxores; i++)
 	{
-		if (this->ores[i]->getCollider().CheckCollision(player->getCollider(), 0.0f))
+		Collider collider = player->getCollider();
+		if (this->ores[i]->getCollider().CheckCollision(collider, 0.0f))
 		{
 			this->OreCollected(i);
 		}
-		
+
 	}
-
-
 }
-void Game::OreCollected(int & position)
+
+void Game::OreCollected(int& position)
 {
 	audiomanager->playMusic("collect");
 	player->collectOre(ores[position]->getValue());
@@ -463,15 +497,18 @@ void Game::OreCollected(int & position)
 	position--;
 }
 
+/*
+* render functions
+*/
 int i = 0;
 void Game::renderFossilsPopup()
 {
-	
+
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !popup)
 	{
 
 		bool deleted = false;
-		for (i = 0; i < this->fossiles.size()&&!popup ; i++)
+		for (i = 0; i < this->fossiles.size() && !popup; i++)
 		{
 			if (this->fossiles[i]->getSprite().getGlobalBounds().contains(this->mousPositionView))
 			{
@@ -499,25 +536,26 @@ void Game::renderFossilsPopup()
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 	{
 		if (popup) {
-			
+
 			fossiles.erase(fossiles.begin() + i);
-			
+
 		}
-		
+
 		popup = false;
 		PopUpChanged = true;
 
 	}
 }
+
 void Game::renderFossiles()
 {
 	for (const auto& f : this->fossiles)
 	{
-		if (f) 
+		if (f)
 		{
 			f->render(*this->window);
 		}
-		
+
 	}
 }
 
@@ -525,6 +563,7 @@ void Game::renderText(sf::RenderTarget& target)
 {
 	target.draw(this->uiText);
 }
+
 void Game::renderObstacles()
 {
 	for (const auto& o : firstLayerObstacles)
@@ -540,17 +579,20 @@ void Game::renderObstacles()
 		o->render(*window);
 	}
 }
+
 void Game::renderOres()
 {
-	for (int i = 0;i < maxores;i++)
+	for (int i = 0; i < maxores; i++)
 	{
 		ores[i]->render(*window);
 	}
 }
 
 
-//GETERS
-const bool Game::getEndGame()const
+/*
+* getters
+*/
+const bool Game::getEndGame() const
 {
 	return this->endGame;
 }
@@ -566,7 +608,7 @@ Finish& Game::getFinish() const
 {
 	return *finish;
 }
-std::vector<std::unique_ptr<Fossil>> const &Game::getFossiles() const
+std::vector<std::unique_ptr<Fossil>> const& Game::getFossiles() const
 {
 	return fossiles;
 }
@@ -586,9 +628,6 @@ sf::Vector2f Game::getMousPositionView() const
 {
 	return this->mousPositionView;
 }
-
-
-
 
 void Game::pollEvents()
 {
