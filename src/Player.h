@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include "Collider.h"
+#include <AudioManager.h>
 class Player
 {
 public:
@@ -31,6 +32,11 @@ public:
 	Collider getCollider();
 	void loseHp(int value);
 	void gainHp(int value);
+	void magnetCollected();
+
+	void magnetUsed();
+
+	bool getMagnetStat()const;
 	
 
 private:
@@ -42,16 +48,20 @@ private:
 	float movementSpeed;
 	float attackCooldown;
 	float attackCooldownMax;
-
+	float resistance;
 	int hp;
 	int hpmax;
 	int collectedores;
 	
+	bool ismagnet;
 
+	std::unique_ptr< AudioManager> audiomanager;
 	//private functions
 	void initTexture();
 	void initSprite();
 	void initVariables();
+
+	void initAudiomanager();
 	
 };
 

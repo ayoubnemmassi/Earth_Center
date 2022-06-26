@@ -10,28 +10,32 @@ public:
 	~GameWorld();
 	
 	//GETERS
-	const int getgridLenth()const;
-	const int getLayerLenth()const;
+	const int getgridLength()const;
+	const int getLayerLength()const;
 	const int getgridWidth()const;
 	const float getMaxTimer()const;
 	const float getTimer()const;
 
 	void updateTime();
-	void updateTimerText(const sf::Vector2f& player_pos);
+	void updateTimerText(const sf::Vector2f& player_pos,float view_h);
 	void renderTimerText(sf::RenderTarget& target);
 	void updateGUI( Player& player);
-	void renderGUI(sf::RenderTarget& target);
+	const bool playerGotDamaged();
+	void renderGUI(sf::RenderTarget& target,float view_h);
 	void render(sf::RenderTarget& target, sf::Shader* shader = NULL, sf::Vector2f playerPos = sf::Vector2f());
 
 private:
 	sf::RectangleShape playerHpBar;
 	sf::RectangleShape playerHpBackground;
-	int gridLenth;
+	int gridLength;
 	int gridWidth;
 	int firstLayer, secondLayer, thirdLayer, fourthLayer, fifthLayer, layertiles;
 
 	float maxTimer;
 	float timer;
+	float maxCooldown;
+	float cooldown;
+
 
 	sf::Vector2i exitPos;
 	sf::Vector2i playerPos;

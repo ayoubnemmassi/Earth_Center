@@ -1,10 +1,11 @@
 #include "Fossil.h"
 #include "Fossil.h"
-#include "Fossil.h"
-#include"Fossil.h"
 
 
-Fossil::Fossil(std::string const & name,sf::Vector2f pos):name{name}
+
+
+
+Fossil::Fossil(pugi::xml_node node,sf::Vector2f pos) :name{ node.attribute("name").value() },pos{pos}
 {
 	initVariables();
 	initTexture(name);
@@ -13,17 +14,11 @@ Fossil::Fossil(std::string const & name,sf::Vector2f pos):name{name}
 	initAudiomanager();
 	initGamemusic();
 	sprite.setPosition(pos);
-	
-	if (name == "Parasaurolophus.png") { initParainfo(); }
-	if (name == "trex.png") { initTrexinfo();  }
-	if (name == "Triceratops.png") { initTricinfo();  }
+	initinfo(node);
 }
 
 
 
-void Fossil::update()
-{
-}
 
 void Fossil::updatePopup()
 {
@@ -38,39 +33,20 @@ void Fossil::render(sf::RenderTarget& target)
 void Fossil::renderPopUp(sf::RenderTarget& target)
 {
 
-	//printf(popup.ge)
-	if (name == "Parasaurolophus.png") {  initinfotext(parainfo[randomnumber]); }
-	if (name == "trex.png") {  initinfotext(trextinfo[randomnumber]); }
-	if (name == "Triceratops.png") {  initinfotext(tricinfo[randomnumber]); }
-	
+
+	initinfotext(fossilInfo[randomnumber]);
 	target.draw(popup);
 	target.draw(infotext);
 }
 
-void Fossil::initTrexinfo()
-{
-	
-	trextinfo.push_back("The name Tyrannosaurus means king of the tyrant lizards");
-	trextinfo.push_back("Trex believed to have had the strongest bite of any land animal roughly 12,814 pounds of force");
-	trextinfo.push_back("Trex was given its names in 1905 by  Henry Fairfield");
 
-}
-
-void Fossil::initParainfo()
+void Fossil::initinfo(pugi::xml_node node)
 {
-	parainfo.push_back("The name Parasaurolophus means: “Near Crested Lizard");
-	parainfo.push_back("Parasaurolophus has an estimated length of 31 feet");
-	parainfo.push_back("Parasaurolophus has an estimated weight of 2.8 tons");
+	for (auto child : node.children())
+	{
+		fossilInfo.push_back(child.attribute("text").value());
+	}
 	
-	
-	
-}
-
-void Fossil::initTricinfo()
-{
-	tricinfo.push_back("The Triceratops can be up to 9 meters long or 29.52 feet");
-	tricinfo.push_back("Triceratops weighed around 12 metric tons or 12,000 kilograms");
-	tricinfo.push_back("The Triceratops can run up to 32 kilometers per hour");
 }
 
 void Fossil::initinfotext(std::string info)
@@ -102,11 +78,8 @@ std::string Fossil::getName() const
 
 std::string Fossil::getQuestionFromFossils()const
 {
-	if (name == "Parasaurolophus.png") {return parainfo[randomnumber]; }
-	if (name == "trex.png") { return trextinfo[randomnumber]; }
-	if (name == "Triceratops.png") { return tricinfo[randomnumber]; }
 	
-	return "no answer";
+	return fossilInfo[randomnumber];
 }
 
 
@@ -121,11 +94,6 @@ void Fossil::initSprite(std::string name)
 {
 	
 	this->sprite.setTexture(this->texture);
-	if (name.compare("Triceratops.png")|| name.compare("Parasaurolophus.png")) { this->sprite.scale(0.6f, 0.6f); }
-	//if (name.compare("Triceratops.png")) { this->sprite.scale(0.7f, 0.7f); }
-	else {
-		this->sprite.scale(0.2f, 0.2f);
-	     }
 
 }
 
@@ -168,3 +136,16 @@ const sf::Sprite Fossil::getSprite() const
 {
 	return randomnumber;
 }
+ sf::Vector2f Fossil::getDistance(Collider& other) const
+ {
+	 sf::Vector2f otherPosition = other.getPosition();
+	 //std::cout << "posplayer :: " << otherPosition.x << std::endl;
+	 float deltaX = otherPosition.x - pos.x;
+	 float deltaY = otherPosition.y - pos.y;
+	 return sf::Vector2f(deltaX, deltaY);
+ }
+ void Fossil::setPosition(sf::Vector2f pos)
+ {
+	 this->pos = pos;
+	 sprite.setPosition(this->pos);
+ }

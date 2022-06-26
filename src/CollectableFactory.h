@@ -1,6 +1,7 @@
 #pragma once
 #include "Collectable.h"
-#include "Ore.h"
+#include "Crystal.h"
+#include <Magnet.h>
 #include<iostream>
 class CollectableFactory
 {

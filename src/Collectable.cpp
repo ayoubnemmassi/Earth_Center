@@ -1,7 +1,7 @@
 #include"Collectable.h"
 
-Collectable::Collectable(sf::Sprite& sprite,int value):
-	value{ value }, sprite{sprite}
+Collectable::Collectable(sf::Sprite& sprite):
+	 sprite{sprite}
 {
 }
 
@@ -9,10 +9,7 @@ Collectable::~Collectable()
 {
 }
 
-void Collectable::getCollected(std::string const& name)
-{
-	audiomanager->playMusic(name);
-}
+
 
 
  sf::Sprite Collectable::getSprite() const
@@ -20,10 +17,7 @@ void Collectable::getCollected(std::string const& name)
 	return sprite;
 }
 
- int Collectable::getValue() const
- {
-	 return value;
- }
+
 
  void Collectable::initAudiomanager()
  {

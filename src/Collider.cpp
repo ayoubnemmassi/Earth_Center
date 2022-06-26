@@ -68,3 +68,4 @@ const sf::Vector2f Collider::getHalfSize()const
 {
 	return (static_cast<sf::Vector2f>( body.getTexture()->getSize()) * body.getScale().x / 2.0f);
 }
+

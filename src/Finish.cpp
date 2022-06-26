@@ -47,9 +47,8 @@ void Finish::initSprites(const sf::Vector2f&  position)
 	quizSprite.setOrigin(quizSprite.getGlobalBounds().width/ 2.f, quizSprite.getGlobalBounds().height / 2.f);
 	genieSprite.setTexture(genieTexture);
 	genieSprite.setPosition(position.x+200,position.y);
+
 	winSprite.setTexture(winTexture);
-	
-	
 	winSprite.setOrigin(winSprite.getGlobalBounds().width / 2.f, winSprite.getGlobalBounds().height / 2.f);
 }
 

@@ -1,4 +1,7 @@
 #include "Player.h"
+
+
+
 Player::Player(const std::string& name, const std::string& spriteurl):name{name},spriteURL{ spriteurl }
 {
 	
@@ -6,6 +9,7 @@ Player::Player(const std::string& name, const std::string& spriteurl):name{name}
 	this->initSprite();
 	this->initVariables();
 	setPosition(600, 100);
+	initAudiomanager();
 }
 
 
@@ -16,14 +20,17 @@ const sf::FloatRect Player::getBounds() const
 }
 void Player::update()
 {
+	std::cout << "hp: " << hp << "max hp :" << hpmax << std::endl;
 	this->updateAttack();
 	if (collectedores == 3)
 	{
+		resistance = 0.3;
 		texture.loadFromFile("resources/Textures/bluetank.png");
 		sprite.setTexture(texture);
 	}
 	else if(collectedores==6)
 	{
+		resistance = 0.6;
 		texture.loadFromFile("resources/Textures/redtank.png");
 		sprite.setTexture(texture);
 	}
@@ -76,14 +83,19 @@ void Player::initSprite()
 }
 void Player::initVariables()
 {
+	ismagnet = false;
 	this->movementSpeed =30.f;
 	this->attackCooldownMax = 10.f;
 	this->attackCooldown = this->attackCooldownMax;
 	this->collectedores = 0;
 	this->hpmax = 50;
 	this->hp = this->hpmax;
+	resistance = 0;
 }
-
+void Player::initAudiomanager()
+{
+	audiomanager = std::make_unique<AudioManager>();
+}
 void Player::initTexture()
 {
 	if(!this->texture.loadFromFile(spriteURL))
@@ -143,11 +155,33 @@ int Player::getHpMax() const
 
  void Player::loseHp(int value)
  {
-	 hp -= value;
+	 hp -= value-(resistance*value);
+	 
  }
 
  void Player::gainHp(int value)
  {
+	 if (hp >= hpmax)
+	 {
+		 hp = hpmax;
+	 }
 	 hp += value;
  }
 
+ void Player::magnetCollected()
+ {
+	 ismagnet = true;
+	 std::string magnetsound_url = "resources/Textures/magnet.ogg";
+	 audiomanager->addMusic("magnet", magnetsound_url);
+	 audiomanager->playMusic("magnet");
+ }
+ void Player::magnetUsed()
+ {
+	 ismagnet = false;
+	 audiomanager->stopMusic("magnet");
+ }
+
+ bool Player::getMagnetStat() const
+ {
+	 return ismagnet;
+ }

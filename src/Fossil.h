@@ -5,22 +5,24 @@
 #include <iostream>
 #include <map>
 #include"AudioManager.h"
+#include "pugixml.hpp"
+#include <Collider.h>
 
 class Fossil
 {
 public:
 
-	Fossil(std::string const&,sf::Vector2f);
+
+	Fossil(pugi::xml_node node, sf::Vector2f pos);
 
 	void initPopUpTexture();
 	void initPopUpSprite(const sf::Vector2f& playerPos);
-	void update();
+	
 	void updatePopup();
 	void render(sf::RenderTarget& target);
 	void renderPopUp(sf::RenderTarget& target);
-	void initTrexinfo();
-	void initParainfo();
-	void initTricinfo();
+
+	void initinfo(pugi::xml_node node);
 	void initinfotext(std::string info);
 	void gotCollected();
 	std::string getQuestionFromFossils()const;
@@ -28,6 +30,8 @@ public:
 	
 	const sf::Sprite getSprite() const;
 	 int getInfoNumber() const;
+	 sf::Vector2f getDistance(Collider& other) const;
+	 void setPosition(sf::Vector2f pos);
 private:
 
 	sf::Text infotext;
@@ -39,9 +43,7 @@ private:
 	sf::Vector2f pos;
 	std::map<std::string, Fossil> informations;
 	std::string name;
-	std::vector<std::string> trextinfo;
-	std::vector<std::string> parainfo;
-	std::vector<std::string> tricinfo;
+	std::vector<std::string> fossilInfo;
 
 	int randomnumber;
 

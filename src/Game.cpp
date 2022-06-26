@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "Game.h"
 
 /**
 *constructeur / facade
@@ -15,17 +16,13 @@ Game::Game()
 	this->initFossiles();
 	this->initObstacles(numberOfObstacles);
 	this->initOres(maxores);
+	this->initMagnets(10);
 	this->initAudiomanager();
 	this->initGamemusic();
 	this->initFinish();
 
 }
 
-//deconstructeur
-Game::~Game()
-{
-
-}
 
 /*
 * la methode qui lance le jeux
@@ -57,7 +54,7 @@ void Game::render()
 		this->finish->render(*this->window);
 	}
 
-
+	
 	this->mapdemo.load("resources/map.tmx");
 	MapLayer layerZero(mapdemo, 0);
 	//MapLayer layerOne(mapdemo, 1);
@@ -69,6 +66,13 @@ void Game::render()
 	this->renderFossilsPopup();
 	this->window->setView(view);
 	this->gameWorld->renderTimerText(*this->window);
+	this->gameWorld->renderGUI(*this->window, view_h);
+
+	if (this->endGame)
+	{
+		this->window->draw(gameover);
+	}
+
 	this->window->display();
 }
 
@@ -83,14 +87,15 @@ void Game::update()
 	int value = 19;
 	value -= (int)gameWorld->getTimer() % 20;
 
-	if (value == 0) {
-		value = 19;
-		player->loseHp(1);
+	
 
-	}
-
-	if (!this->endGame || !this->pause || !this->isfinish)
+	if (!this->endGame && !this->pause && !this->isfinish)
 	{
+		if (gameWorld->playerGotDamaged()) {
+
+			player->loseHp(5);
+
+		}
 
 		this->updateInput();
 		this->updateCollision();
@@ -100,8 +105,9 @@ void Game::update()
 
 		this->updateView();
 		this->window->setView(view);
-		this->gameWorld->updateTimerText(view.getCenter());
+		this->gameWorld->updateTimerText(view.getCenter(), view_h);
 		this->gameWorld->updateGUI(*player);
+		updateFossils();
 	}
 	this->updateMousePosition();
 
@@ -116,9 +122,14 @@ void Game::update()
 		this->endGame = true;
 
 	}
-	if (this->health <= 0)
+	if (this->player->getHp() <= 0)
 	{
 		this->endGame = true;
+		
+	}
+	if(this->endGame)
+	{
+		gameOver();
 	}
 
 }
@@ -133,7 +144,7 @@ void Game::initWindow()
 	this->view.setSize(VIEW_HEIGHT, VIEW_HEIGHT);
 	this->videoMode.height = 600;
 	this->videoMode.width = 600;
-	this->window = std::make_unique< sf::RenderWindow>(this->videoMode, "Game 3", sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize);
+	this->window = std::make_unique< sf::RenderWindow>(this->videoMode, "Earth Center", sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize);
 	texturerender.create(600, 600);
 	this->window->setFramerateLimit(120);
 	this->window->setVerticalSyncEnabled(false);
@@ -173,13 +184,28 @@ void Game::initVariables()
 	this->isfinish = false;
 	this->window = nullptr;
 	VIEW_HEIGHT = 600;
-	this->points = 0;
-	this->mouseHeld = false;
+	//this->points = 0;
+	//this->mouseHeld = false;
 	this->popup = false;
-	this->health = 10;
 	this->endGame = false;
 	this->pause = false;
+	view_h = VIEW_HEIGHT;
+}
 
+void Game::gameOver()
+{
+	
+	this->audiomanager->addMusic("gameover", "resources/Textures/gameover.ogg");
+	this->audiomanager->stopMusic("moving");
+	this->audiomanager->stopMusic("background");
+	std::cout << "getstatus" << this->audiomanager->getMusics()["gameover"]->getStatus() << std::endl;
+	
+	this->audiomanager->playMusic("gameover");
+	
+	gameovertexture.loadFromFile("resources/Textures/gameover.png");
+	gameover.setTexture(gameovertexture);
+	gameover.setOrigin(gameover.getGlobalBounds().width / 2.f, gameover.getGlobalBounds().height / 2.f);
+	gameover.setPosition(view.getCenter());
 }
 
 void Game::initObstacles(int numberOfObstacles)
@@ -190,9 +216,9 @@ void Game::initObstacles(int numberOfObstacles)
 	thirdLayerObstacles.resize(numberOfObstacles);
 	for (int i = 0; i < numberOfObstacles; i++)
 	{
-		firstLayerObstacles[i] = std::make_unique<Obstacle>(sf::Vector2f(x, gameWorld->getLayerLenth() + 288), 10);
-		secondLayerObstacles[i] = std::make_unique<Obstacle>(sf::Vector2f(x, gameWorld->getLayerLenth() * 2 + 288), 20);
-		thirdLayerObstacles[i] = std::make_unique<Obstacle>(sf::Vector2f(x, gameWorld->getLayerLenth() * 3 + 288), 30);
+		firstLayerObstacles[i] = std::make_unique<Obstacle>(sf::Vector2f(x, gameWorld->getLayerLength() + 288), 10);
+		secondLayerObstacles[i] = std::make_unique<Obstacle>(sf::Vector2f(x, gameWorld->getLayerLength() * 2 + 288), 20);
+		thirdLayerObstacles[i] = std::make_unique<Obstacle>(sf::Vector2f(x, gameWorld->getLayerLength() * 3 + 288), 30);
 		x += 288;
 	}
 
@@ -202,19 +228,32 @@ void Game::initObstacles(int numberOfObstacles)
 
 void Game::initOres(int maxores)
 {
-	ores.resize(maxores);
+	//ores.resize(maxores);
 
 	for (int i = 0; i < maxores; i++)
 	{
 		sf::Vector2f pos(random(144, gameWorld->getgridWidth() - 144),
-			random(2 * 288 + 144, gameWorld->getgridLenth() - 144));
+			random(2 * 288 + 144, gameWorld->getgridLength() - 144));
 
-		ores[i] = CollectableFactory::createCollectable(1, 2, pos, "collect");
+		ores.push_back(CollectableFactory::createCollectable(1, 2, pos, "collect"));
 	}
 
 
 }
+void Game::initMagnets(int maxMagnets)
+{
+	
 
+	for (int i = 0; i < maxMagnets; i++)
+	{
+		sf::Vector2f pos(random(144, gameWorld->getgridWidth() - 144),
+			random(2 * 288 + 144, gameWorld->getgridLength() - 144));
+
+		ores.push_back(CollectableFactory::createCollectable(2, 2, pos, "collect"));
+	}
+
+
+}
 void Game::initShader()
 {
 	if (!this->shader.loadFromFile("resources/Textures/vertex_shader.vert", "resources/Textures/fragment_shader.frag"))
@@ -223,18 +262,30 @@ void Game::initShader()
 
 void Game::initFossiles()
 {
+	pugi::xml_document doc;
+	pugi::xml_parse_result result = doc.load_file("resources/trex.xml");
+	if (!result)
+	{
+		std::cerr << "Could not open file visage.xml because " << result.description() << std::endl;
+		
+	}
 	std::string dino_name = "";
-	this->fossiles.resize(3);
-	for (int i = 0; i < 3; i++) {
+	//this->fossiles.resize(1);
+	/*for (int i = 0; i < 3; i++) {
 		if (i == 0) { dino_name = "Parasaurolophus.png"; }
 		else if (i == 1) { dino_name = "Triceratops.png"; }
 		else { dino_name = "trex.png"; }
 		sf::Vector2f pos(random(0, 30 * 288 - 720),
-			random(4 * 288, gameWorld->getLayerLenth() * 3 + 288));
+			random(4 * 288, gameWorld->getLayerLength() * 3 + 288));
 		this->fossiles[i] = std::make_unique<Fossil>(dino_name, pos);
+	}*/
+	
+	for (auto child : doc.child("Fossils").children())
+	{
+		sf::Vector2f pos(random(0, 30 * 288 - 720),
+			random(4 * 288, gameWorld->getLayerLength() * 3 + 288));
+		this->fossiles.push_back ( std::make_unique<Fossil>(child, pos));
 	}
-
-
 }
 
 void Game::initAudiomanager()
@@ -340,24 +391,26 @@ void Game::updateView()
 		view.setCenter(gameWorld->getgridWidth() - view.getSize().x / 2, player->getPos().y);
 		middle = false;
 	}
-	//camera bottom collision
-	if (player->getPos().y + view.getSize().y / 2 >= gameWorld->getgridLenth() && player->getPos().x - view.getSize().x / 2 <= 0)
+	//camera bottom left collision
+	if (player->getPos().y + view.getSize().y / 2 >= gameWorld->getgridLength() && player->getPos().x - view.getSize().x / 2 <= 0)
 	{
-		view.setCenter(view.getSize().x / 2, gameWorld->getgridLenth() - view.getSize().y / 2);
+		view.setCenter(view.getSize().x / 2, gameWorld->getgridLength() - view.getSize().y / 2);
 		middle = false;
 	}
-	else if (player->getPos().y + view.getSize().y / 2 >= gameWorld->getgridLenth() && player->getPos().x + view.getSize().x / 2 >= gameWorld->getgridWidth())
+	//camera bottom right collision
+	else if (player->getPos().y + view.getSize().y / 2 >= gameWorld->getgridLength() && player->getPos().x + view.getSize().x / 2 >= gameWorld->getgridWidth())
 
 	{
-		view.setCenter(gameWorld->getgridWidth() - view.getSize().x / 2, gameWorld->getgridLenth() - view.getSize().y / 2);
+		view.setCenter(gameWorld->getgridWidth() - view.getSize().x / 2, gameWorld->getgridLength() - view.getSize().y / 2);
 		middle = false;
 	}
-	else if (player->getPos().y + view.getSize().y / 2 >= gameWorld->getgridLenth())
+	//middle bottom
+	else if (player->getPos().y + view.getSize().y / 2 >= gameWorld->getgridLength())
 	{
-		view.setCenter(player->getPos().x, gameWorld->getgridLenth() - view.getSize().y / 2);
+		view.setCenter(player->getPos().x, gameWorld->getgridLength() - view.getSize().y / 2);
 		middle = false;
 	}
-	//set the player at center position
+	
 	if (middle)
 	{
 		view.setCenter(player->getPos());
@@ -368,24 +421,27 @@ void Game::updateView()
 void Game::updateCollision()
 {
 	if (!isfinish) {
+		//left
 		if (player->getBounds().left < 0.f)
 		{
-			std::cout << "left: " << player->getBounds().left << "width" << player->getBounds().width;
+			//std::cout << "left: " << player->getBounds().left << "width" << player->getBounds().width;
 			player->setPosition(0.f, player->getBounds().top);
 		}
+		//right
 		else if (player->getBounds().left + player->getBounds().width >= gameWorld->getgridWidth())
 		{
-			std::cout << "left: " << player->getBounds().left << "width" << player->getBounds().width;
+			//std::cout << "left: " << player->getBounds().left << "width" << player->getBounds().width;
 			player->setPosition(gameWorld->getgridWidth() - player->getBounds().width, player->getBounds().top);
 		}
-
+		//top
 		if (player->getBounds().top < 0.f)
 		{
 			player->setPosition(player->getBounds().left, 0.f);
 		}
-		else if (player->getBounds().top + player->getBounds().height >= gameWorld->getgridLenth())
+		//bottom
+		else if (player->getBounds().top + player->getBounds().height >= gameWorld->getgridLength())
 		{
-			player->setPosition(player->getBounds().left, gameWorld->getgridLenth() - player->getBounds().height);
+			player->setPosition(player->getBounds().left, gameWorld->getgridLength() - player->getBounds().height);
 			if(fossiles.size()==0)
 			{
 				finish->setUpQuiz();
@@ -477,21 +533,26 @@ void Game::updateObstacles()
 
 void Game::updateOres()
 {
-	for (int i = 0; i < maxores; i++)
+	int i=0;
+	for (auto & collectable :ores)
 	{
-		Collider collider = player->getCollider();
-		if (this->ores[i]->getCollider().CheckCollision(collider, 0.0f))
-		{
-			this->OreCollected(i);
-		}
+		if (collectable) {
+			Collider collider = player->getCollider();
+			if (collectable->getCollider().CheckCollision(collider, 0.0f))
+			{
+				this->OreCollected(i);
 
+			}
+		}
+		i++;
 	}
 }
 
 void Game::OreCollected(int& position)
 {
 	audiomanager->playMusic("collect");
-	player->collectOre(ores[position]->getValue());
+	//player->collectOre(ores[position]->getValue());
+	ores[position]->collected(*player);
 	ores.erase(ores.begin() + position);
 	maxores--;
 	position--;
@@ -582,9 +643,13 @@ void Game::renderObstacles()
 
 void Game::renderOres()
 {
-	for (int i = 0; i < maxores; i++)
+	/*for (int i = 0; i < maxores; i++)
 	{
 		ores[i]->render(*window);
+	}*/
+	for(auto const &collectable :ores)
+	{
+		collectable->render(*window);
 	}
 }
 
@@ -660,6 +725,7 @@ void Game::resize()
 {
 	float aspectRatio = float(window->getSize().x) / float(window->getSize().y);
 	view.setSize(VIEW_HEIGHT * aspectRatio, VIEW_HEIGHT);
+	view_h = VIEW_HEIGHT * aspectRatio;
 }
 
 int Game::random(int const nbMin, int const nbMax)
@@ -674,6 +740,20 @@ int Game::random(int const nbMin, int const nbMax)
 
 void Game::updateFossils()
 {
+	
+	for (auto &fossil : fossiles) 
+	{
+		if(fossil&&player->getMagnetStat())
+		{
+			//fossil->getDistance(player->getCollider());
+			std::cout << "disx" << fossil->getDistance(player->getCollider()).x << "posy" << fossil->getDistance(player->getCollider()).y << std::endl;
+			if(abs( fossil->getDistance(player->getCollider()).x)<400|| abs(fossil->getDistance(player->getCollider()).y) < 400)
+			{
+				fossil->setPosition(player->getPos());
+				player->magnetUsed();
+			}
+		}
+	}
 }
 float Game::DeltaTime()
 {

@@ -5,7 +5,7 @@
 #include"Fossil.h"
 #include"Enemy.h"
 #include"Obstacle.h"
-#include"Ore.h"
+#include"Crystal.h"
 #include"CollectableFactory.h"
 #include"Finish.h"
 #include "Game.h"

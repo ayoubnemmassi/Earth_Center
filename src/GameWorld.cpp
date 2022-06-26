@@ -1,15 +1,18 @@
 #include "GameWorld.h"
+#include "GameWorld.h"
 GameWorld::GameWorld(const Player &player)
 {
-	maxTimer = 200;
+	maxTimer = 400;
 	firstLayer = 1, secondLayer = 8, thirdLayer =8, fourthLayer = 8, fifthLayer = 8;
-	gridLenth = firstLayer + secondLayer + thirdLayer + fourthLayer + fifthLayer;
+	gridLength = firstLayer + secondLayer + thirdLayer + fourthLayer + fifthLayer;
 	gridWidth = 30;
 	layertiles = 8;
 	setUpInitialState();
 	initTextTimer("PixellettersFull.ttf");
 	initskysprite();
 	initGUI(player);
+	maxCooldown = 50.f;
+	cooldown = 0.f;	
 }
 
 GameWorld::~GameWorld()
@@ -53,7 +56,7 @@ void GameWorld::initGUI(const Player& player)
 void GameWorld::render(sf::RenderTarget& target, sf::Shader* shader, sf::Vector2f playerPos)
 {
 	
-	for (int i = 0; i < gridLenth;i++)
+	for (int i = 0; i < gridLength;i++)
 	{
 		for (int j = 0;j < gridWidth;j++)
 		{
@@ -76,7 +79,7 @@ void GameWorld::render(sf::RenderTarget& target, sf::Shader* shader, sf::Vector2
 				target.draw(tiles[i][j]->sprite);
 		}
 	}
-	renderGUI(target);
+	
 	//target.draw(sky);
 }
 
@@ -86,10 +89,11 @@ void GameWorld::renderTimerText(sf::RenderTarget& target)
 }
 
 
-void GameWorld::renderGUI(sf::RenderTarget& target)
+void GameWorld::renderGUI(sf::RenderTarget& target, float view_h)
 {
-	this->playerHpBackground.setPosition(target.getView().getCenter().x - 300.f, target.getView().getCenter().y - 310.f);
-	this->playerHpBar.setPosition(target.getView().getCenter().x - 300.f, target.getView().getCenter().y - 310.f);
+
+	this->playerHpBar.setPosition(target.getView().getCenter().x - view_h / 2, target.getView().getCenter().y - 310.f);
+	this->playerHpBackground.setPosition(target.getView().getCenter().x - view_h / 2, target.getView().getCenter().y - 310.f);
 	target.draw(this->playerHpBackground);
 	target.draw(this->playerHpBar);
 }
@@ -105,18 +109,27 @@ void GameWorld::updateTime()
 }
 void GameWorld::updateGUI( Player  &player)
 {
-
-	/*this->playerHpBackground.setPosition(player.getPos().x - 300.f, player.getPos().y - 310.f);
-	this->playerHpBar.setPosition(player.getPos().x - 300.f, player.getPos().y - 310.f);	*/
+	if (this->cooldown < this->maxCooldown)
+		this->cooldown += 0.5f;
+	
 	float hpPercent = static_cast<float>(player.getHp()) / static_cast<float>(player.getHpMax());
-	this->playerHpBar.setSize(sf::Vector2f(playerHpBar.getSize().x * hpPercent, playerHpBar.getSize().y));
+	this->playerHpBar.setSize(sf::Vector2f(playerHpBackground.getSize().x * hpPercent, playerHpBar.getSize().y));
 }
-
-void GameWorld::updateTimerText(const sf::Vector2f &player_pos)	
+const bool GameWorld::playerGotDamaged()
+{
+	if (this->cooldown >= this->maxCooldown)
+	{
+		this->cooldown = 0.f;
+		return true;
+	}
+	return false;
+}
+void GameWorld::updateTimerText(const sf::Vector2f &player_pos,float view_h)	
 {
 	
+	std::cout << "view_h:" << view_h << std::endl;
 	timerText.setString(std::to_string((int)timer)+"s");
-	timerText.setPosition(player_pos.x - 290.f, player_pos.y +230.f);
+	timerText.setPosition(player_pos.x - view_h/2, player_pos.y +230.f);
 	
 }
 
@@ -128,8 +141,8 @@ void GameWorld::setUpInitialState()
 	playerPos = sf::Vector2i(gridWidth-1,gridWidth-1);
 
 //RESIZE TILES FOR OPTIMIZATION
-	this->tiles.resize(gridLenth);
-	for (int x = 0; x < gridLenth; x++)
+	this->tiles.resize(gridLength);
+	for (int x = 0; x < gridLength; x++)
 	{
 		this->tiles[x].resize(gridWidth);
 		
@@ -154,7 +167,7 @@ void GameWorld::setUpTiles()
 	std::string url = "resources/Textures/";
 	std::string tile = "";
 
-	for (int i = 0; i < gridLenth;i++)
+	for (int i = 0; i < gridLength;i++)
 	{
 		if(i<firstLayer){ tile = "grass1.png"; }
 		else if(i<=secondLayer&&i>=firstLayer){ tile = "dirt.png"; }
@@ -176,12 +189,12 @@ void GameWorld::setUpTiles()
 
 
 //GETERS
-const int GameWorld::getgridLenth() const
+const int GameWorld::getgridLength() const
 {
-	return gridLenth*tiles[1][1]->sprite.getGlobalBounds().height;
+	return gridLength*tiles[1][1]->sprite.getGlobalBounds().height;
 }
 
-const int GameWorld::getLayerLenth() const
+const int GameWorld::getLayerLength() const
 {
 	return layertiles * tiles[1][1]->sprite.getGlobalBounds().height;
 }

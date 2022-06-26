@@ -14,7 +14,8 @@ void AudioManager::addSound(std::string name, std::string url)
 
 void AudioManager::addMusic(std::string name, std::string url)
 {
-	this->musics[name] = std::make_shared<sf::Music>();
+	this->musics.insert({ name, std::make_shared<sf::Music>() });
+	//this->musics[name] = std::make_shared<sf::Music>();
 	this->musics[name]->openFromFile(url);
 }
 

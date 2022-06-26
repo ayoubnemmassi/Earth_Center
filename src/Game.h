@@ -14,7 +14,7 @@
 #include"Fossil.h"
 #include"Enemy.h"
 #include"Obstacle.h"
-#include"Ore.h"
+#include"Crystal.h"
 #include"AudioManager.h"
 #include"Finish.h"
 #include"CollectableFactory.h"
@@ -31,7 +31,7 @@ public:
 	/*
 	*  destructor
 	*/
-	~Game();
+
 	
 	void run();	
 	void render();
@@ -67,7 +67,7 @@ private:
 	  //variables
        sf::View view;
 	   float VIEW_HEIGHT;
-	  
+	   float view_h;
 	   //functions
 	   void updateView();
 
@@ -165,11 +165,6 @@ private:
 
 	  //functions
 	  void initGameWorld();
-
-    /*
-    * Global
-    */
-	  void initVariables();
 	
 	
 	
@@ -189,12 +184,13 @@ private:
 	/*
 	* ore
 	*/
-	  Ore* ore;
+	  Crystal* ore;
 	  std::vector<std::unique_ptr< Collectable>>ores;
 
 	  int maxores;
 
 	  void initOres(int maxores);
+	  void initMagnets(int maxMagnets);
 	  void updateOres();
 	  void renderOres();
 	  public: void  OreCollected(int& position);
@@ -218,5 +214,22 @@ private:
 	  //functions
 	  void initFinish();
 
+	
+
+	  /*
+       * Global
+      */
+	  void initVariables();
+
+	  /*
+	  * Gameover
+	  */
+
+	  //variables
+	  sf::Sprite  gameover;
+	  sf::Texture gameovertexture;
+
+	  //functions
+	  void gameOver();
 };
 
