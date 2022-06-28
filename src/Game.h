@@ -187,6 +187,9 @@ private:
 	  Crystal* ore;
 	  std::vector<std::unique_ptr< Collectable>>ores;
 
+	  sf::Sprite magnet_icon;
+	  sf::Texture magnet_icon_texture;
+
 	  int maxores;
 
 	  void initOres(int maxores);

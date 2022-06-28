@@ -2,7 +2,7 @@
 #include "GameWorld.h"
 GameWorld::GameWorld(const Player &player)
 {
-	maxTimer = 400;
+	maxTimer = 300;
 	firstLayer = 1, secondLayer = 8, thirdLayer =8, fourthLayer = 8, fifthLayer = 8;
 	gridLength = firstLayer + secondLayer + thirdLayer + fourthLayer + fifthLayer;
 	gridWidth = 30;
@@ -115,15 +115,7 @@ void GameWorld::updateGUI( Player  &player)
 	float hpPercent = static_cast<float>(player.getHp()) / static_cast<float>(player.getHpMax());
 	this->playerHpBar.setSize(sf::Vector2f(playerHpBackground.getSize().x * hpPercent, playerHpBar.getSize().y));
 }
-const bool GameWorld::playerGotDamaged()
-{
-	if (this->cooldown >= this->maxCooldown)
-	{
-		this->cooldown = 0.f;
-		return true;
-	}
-	return false;
-}
+
 void GameWorld::updateTimerText(const sf::Vector2f &player_pos,float view_h)	
 {
 	
@@ -134,7 +126,7 @@ void GameWorld::updateTimerText(const sf::Vector2f &player_pos,float view_h)
 }
 
 
-//SETIP FUNCTIONS
+//SETUP FUNCTIONS
 void GameWorld::setUpInitialState()
 {
 	exitPos = sf::Vector2i(1, 0);
@@ -212,4 +204,14 @@ const float GameWorld::getMaxTimer() const
 const float GameWorld::getTimer() const
 {
 	return timer;
+}
+
+const bool GameWorld::playerGotDamaged()
+{
+	if (this->cooldown >= this->maxCooldown)
+	{
+		this->cooldown = 0.f;
+		return true;
+	}
+	return false;
 }

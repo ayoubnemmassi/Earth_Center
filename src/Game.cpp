@@ -72,7 +72,14 @@ void Game::render()
 	{
 		this->window->draw(gameover);
 	}
-
+	if (player->getMagnetStat())
+	{
+		magnet_icon_texture.loadFromFile("resources/textures/magnet_mini.png");
+		magnet_icon.setTexture(magnet_icon_texture);
+		magnet_icon.setOrigin(magnet_icon.getGlobalBounds().width / 2.f, magnet_icon.getGlobalBounds().height / 2.f);
+		magnet_icon.setPosition(view.getCenter().x + view_h/2-magnet_icon.getGlobalBounds().width/2 , view.getCenter().y + view.getSize().y/2- magnet_icon.getGlobalBounds().height/2);
+		window->draw(magnet_icon);
+	}
 	this->window->display();
 }
 
@@ -547,7 +554,24 @@ void Game::updateOres()
 		i++;
 	}
 }
+void Game::updateFossils()
+{
 
+	for (auto& fossil : fossiles)
+	{
+		if (fossil && player->getMagnetStat())
+		{
+
+			Collider collider = player->getCollider();
+
+			if (abs(fossil->getDistance(collider).x) < 400 || abs(fossil->getDistance(collider).y) < 400)
+			{
+				fossil->setPosition(player->getPos());
+				player->magnetUsed();
+			}
+		}
+	}
+}
 void Game::OreCollected(int& position)
 {
 	audiomanager->playMusic("collect");
@@ -556,6 +580,7 @@ void Game::OreCollected(int& position)
 	ores.erase(ores.begin() + position);
 	maxores--;
 	position--;
+		
 }
 
 /*
@@ -737,24 +762,6 @@ int Game::random(int const nbMin, int const nbMax)
 }
 
 
-
-void Game::updateFossils()
-{
-	
-	for (auto &fossil : fossiles) 
-	{
-		if(fossil&&player->getMagnetStat())
-		{
-			//fossil->getDistance(player->getCollider());
-			std::cout << "disx" << fossil->getDistance(player->getCollider()).x << "posy" << fossil->getDistance(player->getCollider()).y << std::endl;
-			if(abs( fossil->getDistance(player->getCollider()).x)<400|| abs(fossil->getDistance(player->getCollider()).y) < 400)
-			{
-				fossil->setPosition(player->getPos());
-				player->magnetUsed();
-			}
-		}
-	}
-}
 float Game::DeltaTime()
 {
 	return sclock.restart().asSeconds();

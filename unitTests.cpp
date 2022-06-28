@@ -42,7 +42,7 @@ TEST(TestGame, TestFossil) {
 TEST(TestGame, Testore)
 {
 
-	EXPECT_EQ(game->getOres()[1]->getValue(), 2);
+	EXPECT_EQ(static_cast<Crystal*>(game->getOres()[1].get())->getValue(), 2);
 	int pos = 1;
 	game->OreCollected(pos);
 	EXPECT_EQ(game->getOres().size(), 29);

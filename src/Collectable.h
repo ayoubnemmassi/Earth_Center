@@ -7,7 +7,7 @@ class Collectable
 {
 public:
 	Collectable(sf::Sprite& sprite);
-	~Collectable();
+	
 
 	virtual void collected(Player & player)=0;
 	virtual void render(sf::RenderTarget &target)=0;
@@ -17,7 +17,7 @@ public:
 	virtual void initTexture(std::string const& Orename) = 0;
 	virtual std::string test() = 0;
 	  sf::Sprite getSprite()const;
-	  int getValue()const;
+	 
 protected:
 	
 	  virtual void initAudiomanager();

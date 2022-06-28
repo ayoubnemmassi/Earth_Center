@@ -179,6 +179,7 @@ int Player::getHpMax() const
  {
 	 ismagnet = false;
 	 audiomanager->stopMusic("magnet");
+
  }
 
  bool Player::getMagnetStat() const

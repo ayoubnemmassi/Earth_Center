@@ -5,9 +5,6 @@ Collectable::Collectable(sf::Sprite& sprite):
 {
 }
 
-Collectable::~Collectable()
-{
-}
 
 
 
