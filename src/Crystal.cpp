@@ -4,7 +4,7 @@
 Crystal::Crystal(int const& value, sf::Vector2f  const& position, std::string const& name) :Collectable{ sprite }, position{ position }, name{name},value{value}
 {
 	
-	initTexture("Tile_36.png");
+	initTexture(name+".png");
 	initSprite();
 	initAudiomanager();
 	initGamemusic("collect");

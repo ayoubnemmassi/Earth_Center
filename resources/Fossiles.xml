@@ -1,16 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Fossils>
-<Fossil name="trex3.png">
+<Fossil name="trex.png">
   <Info text="The name Tyrannosaurus means king of the tyrant lizards"/>
   <Info text="Trex believed to have had the strongest bite of any land animal roughly 12,814 pounds of force"/>
   <Info text="Trex was given its names in 1905 by  Henry Fairfield"/>
 </Fossil>
-  <Fossil name="Parasaurolophus3.png">
+  <Fossil name="Parasaurolophus.png">
   <Info text="The name Parasaurolophus means: Near Crested Lizard"/>
   <Info text="Parasaurolophus has an estimated length of 31 feet"/>
   <Info text="Parasaurolophus has an estimated weight of 2.8 tons"/>
 </Fossil>
-  <Fossil name="Triceratops3.png">
+  <Fossil name="Triceratops.png">
   <Info text="The Triceratops can be up to 9 meters long or 29.52 feet"/>
   <Info text="Triceratops weighed around 12 metric tons or 12,000 kilograms"/>
   <Info text="The Triceratops can run up to 32 kilometers per hour"/>

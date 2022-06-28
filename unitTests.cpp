@@ -31,9 +31,9 @@ TEST(TestGame, TestFossil) {
 	EXPECT_EQ(game->getFossiles().size(), 3);
 	for (auto const& f : game->getFossiles())
 	{
-		if (i == 0) { dino_name = "Parasaurolophus.png"; }
-		else if (i == 1) { dino_name = "Triceratops.png"; }
-		else { dino_name = "trex.png"; }
+		if (i == 0) { dino_name = "trex.png"; }
+		else if (i == 1) { dino_name = "Parasaurolophus.png"; }
+		else { dino_name = "Triceratops.png"; }
 		EXPECT_EQ(f->getName(), dino_name);
 		i++;
 	}
@@ -45,7 +45,7 @@ TEST(TestGame, Testore)
 	EXPECT_EQ(static_cast<Crystal*>(game->getOres()[1].get())->getValue(), 2);
 	int pos = 1;
 	game->OreCollected(pos);
-	EXPECT_EQ(game->getOres().size(), 29);
+	EXPECT_EQ(game->getOres().size(), 39);
 
 }
 TEST(TestGame, TestFinish)

@@ -1,8 +1,4 @@
 #include "Fossil.h"
-#include "Fossil.h"
-
-
-
 
 
 Fossil::Fossil(pugi::xml_node node,sf::Vector2f pos) :name{ node.attribute("name").value() },pos{pos}
@@ -139,7 +135,6 @@ const sf::Sprite Fossil::getSprite() const
  sf::Vector2f Fossil::getDistance(Collider& other) const
  {
 	 sf::Vector2f otherPosition = other.getPosition();
-	 //std::cout << "posplayer :: " << otherPosition.x << std::endl;
 	 float deltaX = otherPosition.x - pos.x;
 	 float deltaY = otherPosition.y - pos.y;
 	 return sf::Vector2f(deltaX, deltaY);

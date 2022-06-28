@@ -57,11 +57,11 @@ void Game::render()
 	
 	this->mapdemo.load("resources/map.tmx");
 	MapLayer layerZero(mapdemo, 0);
-	//MapLayer layerOne(mapdemo, 1);
+
 	sf::Time duration = globalClock.getElapsedTime();
 	layerZero.update(duration);
 	this->window->draw(layerZero);
-	//this->window->draw(layerOne);
+
 	this->player->render(*this->window);
 	this->renderFossilsPopup();
 	this->window->setView(view);
@@ -123,6 +123,7 @@ void Game::update()
 		this->finish->Updatequiz(this->getMousPositionView(), view.getCenter());
 		this->audiomanager->stopMusic("moving");
 		audiomanager->stopMusic("background");
+		player->magnetUsed();
 	}
 	if (this->gameWorld->getMaxTimer() < this->gameWorld->getTimer())
 	{
@@ -191,8 +192,6 @@ void Game::initVariables()
 	this->isfinish = false;
 	this->window = nullptr;
 	VIEW_HEIGHT = 600;
-	//this->points = 0;
-	//this->mouseHeld = false;
 	this->popup = false;
 	this->endGame = false;
 	this->pause = false;
@@ -270,22 +269,14 @@ void Game::initShader()
 void Game::initFossiles()
 {
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file("resources/trex.xml");
+	pugi::xml_parse_result result = doc.load_file("resources/Fossiles.xml");
 	if (!result)
 	{
 		std::cerr << "Could not open file visage.xml because " << result.description() << std::endl;
 		
 	}
 	std::string dino_name = "";
-	//this->fossiles.resize(1);
-	/*for (int i = 0; i < 3; i++) {
-		if (i == 0) { dino_name = "Parasaurolophus.png"; }
-		else if (i == 1) { dino_name = "Triceratops.png"; }
-		else { dino_name = "trex.png"; }
-		sf::Vector2f pos(random(0, 30 * 288 - 720),
-			random(4 * 288, gameWorld->getLayerLength() * 3 + 288));
-		this->fossiles[i] = std::make_unique<Fossil>(dino_name, pos);
-	}*/
+
 	
 	for (auto child : doc.child("Fossils").children())
 	{
@@ -564,7 +555,7 @@ void Game::updateFossils()
 
 			Collider collider = player->getCollider();
 
-			if (abs(fossil->getDistance(collider).x) < 400 || abs(fossil->getDistance(collider).y) < 400)
+			if (abs(fossil->getDistance(collider).x) < view_h/2+50 || abs(fossil->getDistance(collider).y) < view.getSize().y/2+50)
 			{
 				fossil->setPosition(player->getPos());
 				player->magnetUsed();
@@ -575,7 +566,7 @@ void Game::updateFossils()
 void Game::OreCollected(int& position)
 {
 	audiomanager->playMusic("collect");
-	//player->collectOre(ores[position]->getValue());
+	
 	ores[position]->collected(*player);
 	ores.erase(ores.begin() + position);
 	maxores--;
@@ -668,10 +659,7 @@ void Game::renderObstacles()
 
 void Game::renderOres()
 {
-	/*for (int i = 0; i < maxores; i++)
-	{
-		ores[i]->render(*window);
-	}*/
+
 	for(auto const &collectable :ores)
 	{
 		collectable->render(*window);
